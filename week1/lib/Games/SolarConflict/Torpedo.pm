@@ -15,8 +15,8 @@ has r => (
 
 has color => (
     is      => 'ro',
-    isa     => 'SDL::Color',
-    default => sub { SDL::Color->new( 255, 255, 255 ) },
+    isa     => 'Int',
+    default => 0xFFFFFFFF,
 );
 
 has '+mass' => ( default => 0.01 );
@@ -24,11 +24,8 @@ has '+mass' => ( default => 0.01 );
 sub draw {
     my ( $self, $surface ) = @_;
 
-    SDL::GFX::Primitives::filled_circle_RGBA( $surface, $self->x, $self->y,
-        $self->r, 255, 255, 255, 255 );
-
-    #SDL::GFX::Primitives::filled_circle_color( $surface, $self->x, $self->y,
-    #$self->r, $self->color );
+    SDL::GFX::Primitives::filled_circle_color( $surface, $self->x, $self->y,
+        $self->r, $self->color );
 }
 
 __PACKAGE__->meta->make_immutable;
