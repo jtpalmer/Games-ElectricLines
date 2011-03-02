@@ -79,15 +79,23 @@ sub _build_container {
 
         container image => as {
             service sun            => $self->assets->file('sun.bmp');
-            service spaceship      => $self->assets->file('spaceship.bmp');
+            service spaceship1     => $self->assets->file('spaceship1.bmp');
+            service spaceship2     => $self->assets->file('spaceship2.bmp');
             service spaceship_rect => SDL::Rect->new( 0, 0, 32, 32 );
         };
 
         container view => as {
-            service spaceship => (
+            service spaceship1 => (
                 class        => 'Games::SolarConflict::Sprite::Rotatable',
                 dependencies => {
-                    image => depends_on('/image/spaceship'),
+                    image => depends_on('/image/spaceship1'),
+                    rect  => depends_on('/image/spaceship_rect'),
+                },
+            );
+            service spaceship2 => (
+                class        => 'Games::SolarConflict::Sprite::Rotatable',
+                dependencies => {
+                    image => depends_on('/image/spaceship2'),
                     rect  => depends_on('/image/spaceship_rect'),
                 },
             );
@@ -98,17 +106,25 @@ sub _build_container {
         };
 
         container object => as {
-            service human_player => (
+            service human_player1 => (
                 class        => 'Games::SolarConflict::HumanPlayer',
-                dependencies => { spaceship => depends_on('spaceship') },
+                dependencies => { spaceship => depends_on('spaceship1') },
+            );
+            service human_player2 => (
+                class        => 'Games::SolarConflict::HumanPlayer',
+                dependencies => { spaceship => depends_on('spaceship2') },
             );
             service computer_player => (
                 class        => 'Games::SolarConflict::ComputerPlayer',
-                dependencies => { spaceship => depends_on('spaceship') },
+                dependencies => { spaceship => depends_on('spaceship2') },
             );
-            service spaceship => (
+            service spaceship1 => (
                 class        => 'Games::SolarConflict::Spaceship',
-                dependencies => { sprite => depends_on('/view/spaceship') },
+                dependencies => { sprite => depends_on('/view/spaceship1') },
+            );
+            service spaceship2 => (
+                class        => 'Games::SolarConflict::Spaceship',
+                dependencies => { sprite => depends_on('/view/spaceship2') },
             );
             service sun => (
                 class        => 'Games::SolarConflict::Sun',
