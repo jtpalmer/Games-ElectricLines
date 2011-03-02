@@ -33,7 +33,6 @@ has state => (
 
 has peers => (
     is      => 'rw',
-    isa     => 'ArrayRef',
     isa     => 'ArrayRef[Games::SolarConflict::Roles::Physical]',
     default => sub { [] },
 );
