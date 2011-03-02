@@ -5,7 +5,7 @@ use namespace::clean -except => 'meta';
 
 with 'Games::SolarConflict::Roles::Physical';
 
-has '+r' => ( default => 16 );
+has '+r' => ( default => 14 );
 
 has '+mass' => ( default => 100 );
 
