@@ -38,14 +38,9 @@ before draw => sub {
     $self->sprite->rotation( $self->rotation );
 };
 
-after d_a => sub {
+before acc => sub {
     my ( $self, $acc ) = @_;
-    $self->_update_acc( $acc, $self->rotation ) if defined $acc;
-};
-
-after rotation => sub {
-    my ( $self, $rot ) = @_;
-    $self->_update_acc( $self->d_a, $rot ) if defined $rot;
+    $self->_update_acc( $self->d_a, $self->rotation ) if defined $acc;
 };
 
 sub _update_acc {
