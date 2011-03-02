@@ -93,8 +93,15 @@ around BUILDARGS => sub {
 
     my $game = $args{game};
 
-    my $player1 = $game->resolve( service => 'object/human_player1' );
-    my $player2 = $game->resolve( service => 'object/human_player2' );
+    my $players = $game->get_sub_container('players');
+
+    my $player1
+        = $players->create( player => $game->get_sub_container('player1') )
+        ->resolve( service => 'human_player' );
+
+    my $player2
+        = $players->create( player => $game->get_sub_container('player2') )
+        ->resolve( service => 'human_player' );
 
 =pod
     if ( $arg{players} != 1 ) {
