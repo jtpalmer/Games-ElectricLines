@@ -58,9 +58,19 @@ has controls => (
                     d => sub { $_[1]->ang_a(0) },
                 }
             },
-            {
+            { down => {
+                    u => sub { $_[0]->_fire_torpedo( $_[2] ) },
+                    i => sub { $_[2]->d_a(10) },
+                    j => sub { $_[2]->ang_a(-1) },
+                    k => sub { $_[0]->_warp_ship( $_[2] ) },
+                    l => sub { $_[2]->ang_a(1) },
+                },
+                up => {
+                    i => sub { $_[2]->d_a(0) },
+                    j => sub { $_[2]->ang_a(0) },
+                    l => sub { $_[2]->ang_a(0) },
+                }
 
-                # TODO: reproduce above for player 2
             }
         ];
     },
