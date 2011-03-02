@@ -37,15 +37,11 @@ has controls => (
         [   {   down => {
                     q => sub { $_[0]->_fire_torpedo( $_[1] ) },
                     w => sub { $_[1]->d_a(10) },
-                    e => sub { $_[1]->laser(1) },
-                    r => sub { $_[1]->power_to_shields() },
                     a => sub { $_[1]->ang_a(-1) },
                     s => sub { $_[0]->_warp_ship( $_[1] ) },
                     d => sub { $_[1]->ang_a(1) },
-                    f => sub { $_[1]->power_to_torpedos() },
                 },
                 up => {
-                    e => sub { $_[1]->laser(0) },
                     w => sub { $_[1]->d_a(0) },
                     a => sub { $_[1]->ang_a(0) },
                     d => sub { $_[1]->ang_a(0) },
@@ -123,9 +119,9 @@ sub handle_show {
     # TODO: draw background
     $app->draw_rect( [ 0, 0, $app->w, $app->h ], 0x000000FF );
 
-    $_->draw($app) foreach @{ $self->objects };
+    # TODO: draw power bar for both players
 
-    # TODO: draw shield, torpedo power
+    $_->draw($app) foreach @{ $self->objects };
 
     $app->update();
 }

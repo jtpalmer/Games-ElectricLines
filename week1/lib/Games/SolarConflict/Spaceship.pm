@@ -14,7 +14,7 @@ has d_a => (
     default => 0,
 );
 
-has [qw( shield_power torpedo_power )] => (
+has power => (
     is      => 'rw',
     isa     => 'Num',
     default => 50,
@@ -55,34 +55,10 @@ sub _update_acc {
     $self->a_y( $acc * -cos($angle) );
 }
 
-sub power_to_shields {
-    my ($self) = @_;
-
-    my $torpedo_power = $self->torpedo_power;
-    my $shield_power  = $self->shield_power;
-
-    return unless $torpedo_power > 1 && $shield_power < 100;
-
-    $self->torpedo_power( $torpedo_power - 1 );
-    $self->shield_power( $shield_power + 1 );
-}
-
-sub power_to_torpedos {
-    my ($self) = @_;
-
-    my $torpedo_power = $self->torpedo_power;
-    my $shield_power  = $self->shield_power;
-
-    return unless $shield_power > 1 && $torpedo_power < 100;
-
-    $self->shield_power( $shield_power - 1 );
-    $self->torpedo_power( $torpedo_power + 1 );
-}
-
 sub receive_damage {
     my ( $self, $damage ) = @_;
 
-    $self->shield_power( $self->shield_power - $damage );
+    $self->power( $self->power - $damage );
 }
 
 sub fire_torpedo {
@@ -93,11 +69,6 @@ sub fire_torpedo {
     $torpedo->y( $self->y - cos($angle) * 16 );
     $torpedo->v_x( $self->v_x + sin($angle) * 10 );
     $torpedo->v_y( $self->v_y - cos($angle) * 10 );
-}
-
-sub laser {
-    my ( $self, $status ) = $_;
-
 }
 
 sub warp {
