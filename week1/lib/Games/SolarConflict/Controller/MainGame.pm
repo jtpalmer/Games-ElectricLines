@@ -92,14 +92,14 @@ around BUILDARGS => sub {
     my $s1 = $players[0]->spaceship;
     $s1->y( $app->h / 2 );
     $s1->x( $app->w / 4 );
-    $s1->v_y(-30);
-    $s1->ang_v(12);
+    $s1->v_y(-20);
+    $s1->ang_v(5);
 
     my $s2 = $players[1]->spaceship;
     $s2->y( $app->h / 2 );
     $s2->x( 3 * $app->w / 4 );
-    $s2->v_y(30);
-    $s2->ang_v(12);
+    $s2->v_y(20);
+    $s2->ang_v(5);
     $s2->rotation(180);
 
     $s1->interface->attach( $app, sub { } );

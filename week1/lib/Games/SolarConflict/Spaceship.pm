@@ -5,14 +5,12 @@ use namespace::clean -except => 'meta';
 
 with 'Games::SolarConflict::Roles::Physical';
 
-has '+mass' => (
-    default => 0.5,
-);
+has '+mass' => ( default => 100 );
 
 # directional acceleration
 has d_a => (
-    is => 'rw',
-    isa => 'Num',
+    is      => 'rw',
+    isa     => 'Num',
     default => 0,
 );
 
@@ -39,23 +37,23 @@ before draw => sub {
 };
 
 after d_a => sub {
-    my ($self, $acc) = @_;
-    $self->_update_acc( $acc, $self->rotation) if defined $acc;
+    my ( $self, $acc ) = @_;
+    $self->_update_acc( $acc, $self->rotation ) if defined $acc;
 };
 
 after rotation => sub {
-    my ($self, $rot) = @_;
-    $self->_update_acc( $self->d_a, $rot) if defined $rot;
+    my ( $self, $rot ) = @_;
+    $self->_update_acc( $self->d_a, $rot ) if defined $rot;
 };
 
 sub _update_acc {
-    my ($self, $acc, $rot) = @_;
+    my ( $self, $acc, $rot ) = @_;
 
     my $angle = deg2rad($rot);
 
     $self->a_x( $acc * sin($angle) );
     $self->a_y( $acc * -cos($angle) );
-};
+}
 
 sub power_to_shields {
     my ($self) = @_;
@@ -88,9 +86,9 @@ sub receive_damage {
 }
 
 sub fire_torpedo {
-    my ($self, $torpedo) = @_;
+    my ( $self, $torpedo ) = @_;
 
-    my $angle = deg2rad($self->rotation);
+    my $angle = deg2rad( $self->rotation );
     $torpedo->x( $self->x + sin($angle) * 16 );
     $torpedo->y( $self->y - cos($angle) * 16 );
     $torpedo->v_x( $self->v_x + sin($angle) * 10 );
@@ -98,12 +96,12 @@ sub fire_torpedo {
 }
 
 sub laser {
-    my ($self, $status) = $_;
+    my ( $self, $status ) = $_;
 
 }
 
 sub warp {
-    my ($self, $x, $y) = @_;
+    my ( $self, $x, $y ) = @_;
 
     # TODO: decrease power?
 
