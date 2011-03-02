@@ -10,7 +10,7 @@ sub handle_show {
     my ( $self, $delta, $app ) = @_;
 
     $app->draw_rect( [ 0, 0, $app->w, $app->h ], 0x000000FF );
-    $app->draw_gfx_text( [ 0, 0 ], 0xFFFFFFFF, 'SolarConflict' );
+    $app->draw_gfx_text( [ 0, 0 ],  0xFFFFFFFF, 'SolarConflict' );
     $app->draw_gfx_text( [ 0, 10 ], 0xFFFFFFFF, 'Press 1 for single player' );
     $app->draw_gfx_text( [ 0, 20 ], 0xFFFFFFFF, 'Press 2 for two player' );
     $app->update();

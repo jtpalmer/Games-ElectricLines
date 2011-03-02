@@ -35,14 +35,14 @@ has cols => (
 sub rotation {
     my ( $self, $rot ) = @_;
 
-    while ($rot > 360) { $rot -= 360 }
-    while ($rot < 0) { $rot += 360 }
+    while ( $rot > 360 ) { $rot -= 360 }
+    while ( $rot < 0 ) { $rot += 360 }
 
     my $frame = int( $rot / $self->increment );
 
     my $clip = $self->clip;
-    $clip->x( ($frame % $self->cols) * $self->rect->h );
-    $clip->y( int($frame / $self->cols) * $self->rect->w );
+    $clip->x( ( $frame % $self->cols ) * $self->rect->h );
+    $clip->y( int( $frame / $self->cols ) * $self->rect->w );
 }
 
 __PACKAGE__->meta->make_immutable;

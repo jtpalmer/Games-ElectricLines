@@ -21,7 +21,7 @@ has message => (
 sub handle_show {
     my ( $self, $delta, $app ) = @_;
 
-    $app->draw_gfx_text( [ 0, 0 ], 0xFFFFFFFF, $self->message );
+    $app->draw_gfx_text( [ 0, 0 ],  0xFFFFFFFF, $self->message );
     $app->draw_gfx_text( [ 0, 10 ], 0xFFFFFFFF, 'Press R to play again' );
     $app->draw_gfx_text( [ 0, 20 ],
         0xFFFFFFFF, 'Press M to go to the main menu' );

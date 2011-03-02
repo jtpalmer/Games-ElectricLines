@@ -58,7 +58,7 @@ has controls => (
                     d => sub { $_[1]->ang_a(0) },
                 }
             },
-            { down => {
+            {   down => {
                     u => sub { $_[0]->_fire_torpedo( $_[2] ) },
                     i => sub { $_[2]->d_a(10) },
                     j => sub { $_[2]->ang_a(-5) },
@@ -69,7 +69,7 @@ has controls => (
                     i => sub { $_[2]->d_a(0) },
                     j => sub { $_[2]->ang_a(0) },
                     l => sub { $_[2]->ang_a(0) },
-                }
+                    }
 
             }
         ];
@@ -109,7 +109,7 @@ around BUILDARGS => sub {
 sub BUILD {
     my ($self) = @_;
 
-    my $app  = $self->game->app;
+    my $app = $self->game->app;
 
     my $s1 = $self->player1->spaceship;
     $s1->y( $app->h / 2 );
@@ -220,9 +220,7 @@ sub _handle_key {
     foreach my $control ( @{ $self->controls } ) {
         if ( defined $control->{$state}{$key} ) {
             $control->{$state}{$key}->(
-                $self,
-                $self->player1->spaceship,
-                $self->player2->spaceship
+                $self, $self->player1->spaceship, $self->player2->spaceship
             );
         }
     }

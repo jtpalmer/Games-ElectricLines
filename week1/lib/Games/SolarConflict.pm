@@ -80,7 +80,7 @@ sub _build_container {
         container image => as {
             service sun            => $self->assets->file('sun.bmp');
             service spaceship      => $self->assets->file('spaceship.bmp');
-            service spaceship_rect => SDL::Rect->new(0, 0, 32, 32);
+            service spaceship_rect => SDL::Rect->new( 0, 0, 32, 32 );
         };
 
         container view => as {
