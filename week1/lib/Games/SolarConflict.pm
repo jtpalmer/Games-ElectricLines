@@ -129,10 +129,15 @@ sub _build_container {
             service main_game => (
                 class        => 'Games::SolarConflict::Controller::MainGame',
                 dependencies => { game => ( service game => $self ) },
+                parameters   => { players => { isa => 'Num' } },
             );
             service game_over => (
                 class        => 'Games::SolarConflict::Controller::GameOver',
                 dependencies => { game => ( service game => $self ) },
+                parameters   => {
+                    players => { isa => 'Num' },
+                    message => { isa => 'Str' },
+                },
             );
         };
     };
