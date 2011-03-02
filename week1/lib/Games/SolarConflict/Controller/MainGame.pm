@@ -237,7 +237,7 @@ sub _warp_ship {
 sub _fire_torpedo {
     my ( $self, $ship ) = @_;
 
-    # TODO limit number of torpedos
+    # TODO: limit number of torpedos
 
     my $torpedo = $self->game->resolve( service => 'object/torpedo' );
 

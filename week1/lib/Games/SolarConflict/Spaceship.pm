@@ -60,10 +60,10 @@ sub _update_acc {
 sub interact {
     my ( $self, $obj ) = @_;
 
-    $self->receive_damage( $obj->mass );
+    $self->decrease_power( $obj->mass );
 }
 
-sub receive_damage {
+sub decrease_power {
     my ( $self, $damage ) = @_;
 
     $self->power( $self->power - $damage );
@@ -71,6 +71,8 @@ sub receive_damage {
 
 sub fire_torpedo {
     my ( $self, $torpedo ) = @_;
+
+    $self->decrease_power( $torpedo->mass / 4 );
 
     my $angle = deg2rad( $self->rotation );
 
@@ -91,7 +93,7 @@ sub fire_torpedo {
 sub warp {
     my ( $self, $x, $y ) = @_;
 
-    # TODO: decrease power?
+    $self->decrease_power(10);
 
     $self->x($x);
     $self->y($y);
