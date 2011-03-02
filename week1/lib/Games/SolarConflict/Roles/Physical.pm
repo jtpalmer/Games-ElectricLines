@@ -17,6 +17,13 @@ has mass => (
     default => 1,
 );
 
+# everything is a circle
+has r => (
+    is       => 'rw',
+    isa      => 'Num',
+    required => 1,
+);
+
 has interface => (
     is       => 'ro',
     isa      => 'SDLx::Controller::Interface',
@@ -32,9 +39,16 @@ has state => (
 );
 
 has peers => (
+    is       => 'rw',
+    isa      => 'ArrayRef[Games::SolarConflict::Roles::Physical]',
+    default  => sub { [] },
+    weak_ref => 1,
+);
+
+has valid => (
     is      => 'rw',
-    isa     => 'ArrayRef[Games::SolarConflict::Roles::Physical]',
-    default => sub { [] },
+    isa     => 'Bool',
+    default => 1,
 );
 
 around BUILDARGS => sub {
@@ -52,7 +66,7 @@ around BUILDARGS => sub {
     return $class->$orig( %args, interface => $interface, );
 };
 
-sub BUILD {}
+sub BUILD { }
 
 after BUILD => sub {
     my ($self) = @_;
@@ -66,9 +80,9 @@ sub force_on {
     my $distance = $self->distance_from($obj);
     return 0 if $distance == 0;
 
-    my $f = $self->mass * $obj->mass / ($distance * $distance);
-    my $fx = $f * ($self->x - $obj->x) / $distance;
-    my $fy = $f * ($self->y - $obj->y) / $distance;
+    my $f = $self->mass * $obj->mass / ( $distance * $distance );
+    my $fx = $f * ( $self->x - $obj->x ) / $distance;
+    my $fy = $f * ( $self->y - $obj->y ) / $distance;
     return ( $fx, $fy );
 }
 
@@ -78,6 +92,12 @@ sub distance_from {
     my $dx = $self->x - $obj->x;
     my $dy = $self->y - $obj->y;
     return sqrt( $dx * $dx + $dy * $dy );
+}
+
+sub intersects {
+    my ( $self, $obj ) = @_;
+
+    return $self->distance_from($obj) < $self->r + $obj->r;
 }
 
 sub acc {
@@ -95,6 +115,9 @@ sub acc {
 
     return ( $a_x, $a_y, $ang_a );
 }
+
+# do nothing by default
+sub interact { }
 
 no Moose::Role;
 

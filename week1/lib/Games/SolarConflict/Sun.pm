@@ -4,6 +4,10 @@ use namespace::clean -except => 'meta';
 
 with 'Games::SolarConflict::Roles::Physical';
 
+has '+r' => ( default => 40 );
+
+has '+mass' => ( default => 100000 );
+
 has sprite => (
     is       => 'ro',
     isa      => 'SDLx::Sprite',
@@ -12,8 +16,6 @@ has sprite => (
 );
 
 with 'Games::SolarConflict::Roles::Drawable';
-
-has '+mass' => ( default => 100000 );
 
 before draw => sub {
     my ( $self ) = @_;

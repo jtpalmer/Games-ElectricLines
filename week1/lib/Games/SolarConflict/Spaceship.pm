@@ -5,6 +5,8 @@ use namespace::clean -except => 'meta';
 
 with 'Games::SolarConflict::Roles::Physical';
 
+has '+r' => ( default => 16 );
+
 has '+mass' => ( default => 100 );
 
 # directional acceleration
@@ -55,6 +57,12 @@ sub _update_acc {
     $self->a_y( $acc * -cos($angle) );
 }
 
+sub interact {
+    my ( $self, $obj ) = @_;
+
+    $self->receive_damage( $obj->mass );
+}
+
 sub receive_damage {
     my ( $self, $damage ) = @_;
 
@@ -65,10 +73,19 @@ sub fire_torpedo {
     my ( $self, $torpedo ) = @_;
 
     my $angle = deg2rad( $self->rotation );
-    $torpedo->x( $self->x + sin($angle) * 16 );
-    $torpedo->y( $self->y - cos($angle) * 16 );
-    $torpedo->v_x( $self->v_x + sin($angle) * 10 );
-    $torpedo->v_y( $self->v_y - cos($angle) * 10 );
+
+    my $v_x = $self->v_x;
+    my $v_y = $self->v_y;
+
+    my $dx = sin($angle);
+    my $dy = -cos($angle);
+    my $dd = $self->r + $torpedo->r + 5;
+    my $dv = 20;
+
+    $torpedo->x( $self->x + $dx * $dd );
+    $torpedo->y( $self->y + $dy * $dd );
+    $torpedo->v_x( $v_x + $dx * $dv );
+    $torpedo->v_y( $v_y + $dy * $dv );
 }
 
 sub warp {

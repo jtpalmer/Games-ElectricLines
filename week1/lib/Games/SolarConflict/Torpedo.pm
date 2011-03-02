@@ -7,11 +7,9 @@ use namespace::clean -except => 'meta';
 with 'Games::SolarConflict::Roles::Drawable';
 with 'Games::SolarConflict::Roles::Physical';
 
-has r => (
-    is      => 'ro',
-    isa     => 'Num',
-    default => 3,
-);
+has '+r' => ( default => 3 );
+
+has '+mass' => ( default => 1 );
 
 has color => (
     is      => 'ro',
@@ -19,10 +17,14 @@ has color => (
     default => 0xFFFFFFFF,
 );
 
-has '+mass' => ( default => 0.01 );
+# torpedos have negligible gravitational force
+sub force_on { ( 0, 0 ) }
 
-# Torpedos should have negligible gravitational force
-sub force_on { (0, 0) }
+sub interact {
+    my ( $self, $obj ) = @_;
+
+    $self->valid(0);
+}
 
 sub draw {
     my ( $self, $surface ) = @_;

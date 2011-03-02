@@ -146,6 +146,18 @@ sub handle_move {
     my ( $self, $step, $app, $t ) = @_;
 
     # TODO: collision detection
+    foreach my $obj ( @{ $self->objects } ) {
+        foreach my $other ( @{ $self->objects } ) {
+            next if $obj == $other;
+
+            if ($obj->intersects($other)) {
+                $obj->interact($other);
+            }
+        }
+    }
+
+    my $objects = $self->objects;
+    @$objects = grep { $_->valid } @$objects;
 
     my $w = $app->w;
     my $h = $app->h;
