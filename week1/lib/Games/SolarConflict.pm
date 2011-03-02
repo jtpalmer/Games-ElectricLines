@@ -20,12 +20,6 @@ has assets => (
     required => 1,
 );
 
-has _state_map => (
-    is      => 'ro',
-    lazy    => 1,
-    builder => '_build_state_map',
-);
-
 has _container => (
     is      => 'ro',
     isa     => 'Bread::Board::Container',
@@ -43,33 +37,6 @@ sub _build_app {
         title => 'SolarConflict',
         eoq   => 1,
     );
-}
-
-sub _build_state_map {
-    return {
-        start => {
-            controller  => 'main_menu',
-            transitions => {
-                continue => 'main_game',
-                abort    => 'end',
-            },
-        },
-        main_game => {
-            controller  => 'main_game',
-            transitions => {
-                game_over => 'game_over',
-                abort     => 'end',
-            },
-        },
-        game_over => {
-            controller  => 'game_over',
-            transitions => {
-                start_over => 'main_menu',
-                continue   => 'main_game',
-                abort      => 'end',
-            },
-        },
-    };
 }
 
 sub _build_container {
