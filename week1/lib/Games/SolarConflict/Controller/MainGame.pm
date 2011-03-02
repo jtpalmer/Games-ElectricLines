@@ -15,13 +15,15 @@ has players => (
 );
 
 has player1 => (
-    is  => 'ro',
-    isa => 'Games::SolarConflict::HumanPlayer',
+    is       => 'ro',
+    isa      => 'Games::SolarConflict::HumanPlayer',
+    required => 1,
 );
 
 has player2 => (
-    is  => 'ro',
-    isa => 'Games::SolarConflict::Roles::Player',
+    is       => 'ro',
+    isa      => 'Games::SolarConflict::Roles::Player',
+    required => 1,
 );
 
 has sun => (
@@ -56,7 +58,7 @@ has controls => (
                     w => sub { $_[1]->d_a(0) },
                     a => sub { $_[1]->ang_a(0) },
                     d => sub { $_[1]->ang_a(0) },
-                }
+                },
             },
             {   down => {
                     u => sub { $_[0]->_fire_torpedo( $_[2] ) },
@@ -69,9 +71,8 @@ has controls => (
                     i => sub { $_[2]->d_a(0) },
                     j => sub { $_[2]->ang_a(0) },
                     l => sub { $_[2]->ang_a(0) },
-                    }
-
-            }
+                },
+            },
         ];
     },
 );
