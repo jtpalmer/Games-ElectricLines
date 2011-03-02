@@ -21,6 +21,9 @@ has color => (
 
 has '+mass' => ( default => 0.01 );
 
+# Torpedos should have negligible gravitational force
+sub force_on { (0, 0) }
+
 sub draw {
     my ( $self, $surface ) = @_;
 
