@@ -9,8 +9,19 @@ use namespace::clean -except => 'meta';
 with 'Games::SolarConflict::Roles::Controller';
 
 has players => (
-    is => 'ro',
-    isa => 'ArrayRef[Games::SolarConflict::Roles::Player]',
+    is       => 'ro',
+    isa      => 'Int',
+    required => 1,
+);
+
+has player1 => (
+    is  => 'ro',
+    isa => 'Games::SolarConflict::HumanPlayer',
+);
+
+has player2 => (
+    is  => 'ro',
+    isa => 'Games::SolarConflict::Roles::Player',
 );
 
 has sun => (
@@ -21,11 +32,11 @@ has sun => (
 );
 
 has objects => (
-    traits => ['Array'],
-    is     => 'ro',
-    isa    => 'ArrayRef',
-    isa => 'ArrayRef[Games::SolarConflict::Roles::Physical]',
-    default => sub          { [] },
+    traits  => ['Array'],
+    is      => 'ro',
+    isa     => 'ArrayRef',
+    isa     => 'ArrayRef[Games::SolarConflict::Roles::Physical]',
+    default => sub { [] },
     handles => { add_object => 'push' },
 );
 
@@ -71,27 +82,32 @@ around BUILDARGS => sub {
     my ( $orig, $class, %args ) = @_;
 
     my $game = $args{game};
-    my $app  = $game->app;
 
-    my @players = (
-        $game->resolve( service => 'object/human_player' ),
-        $game->resolve( service => 'object/human_player' )
-    );
+    my $player1 = $game->resolve( service => 'object/human_player' );
+    my $player2 = $game->resolve( service => 'object/human_player' );
 
 =pod
-    if ( $args{players} == 2 ) {
+    if ( $arg{players} != 1 ) {
     }
     else {
     }
 =cut
 
-    my $s1 = $players[0]->spaceship;
+    return $class->$orig( %args, player1 => $player1, player2 => $player2 );
+};
+
+sub BUILD {
+    my ($self) = @_;
+
+    my $app  = $self->game->app;
+
+    my $s1 = $self->player1->spaceship;
     $s1->y( $app->h / 2 );
     $s1->x( $app->w / 4 );
     $s1->v_y(-20);
     $s1->ang_v(5);
 
-    my $s2 = $players[1]->spaceship;
+    my $s2 = $self->player2->spaceship;
     $s2->y( $app->h / 2 );
     $s2->x( 3 * $app->w / 4 );
     $s2->v_y(20);
@@ -101,14 +117,9 @@ around BUILDARGS => sub {
     $s1->interface->attach( $app, sub { } );
     $s2->interface->attach( $app, sub { } );
 
-    return $class->$orig( %args, players => \@players );
-};
-
-sub BUILD {
-    my ($self) = @_;
-
     $self->add_object( $self->sun );
-    $self->add_object( $_->spaceship ) foreach @{ $self->players };
+    $self->add_object( $self->player1->spaceship );
+    $self->add_object( $self->player2->spaceship );
 
     $_->peers( $self->objects ) foreach @{ $self->objects };
 }
@@ -145,12 +156,11 @@ sub handle_event {
 sub handle_move {
     my ( $self, $step, $app, $t ) = @_;
 
-    # TODO: collision detection
     foreach my $obj ( @{ $self->objects } ) {
         foreach my $other ( @{ $self->objects } ) {
             next if $obj == $other;
 
-            if ($obj->intersects($other)) {
+            if ( $obj->intersects($other) ) {
                 $obj->interact($other);
             }
         }
@@ -158,6 +168,30 @@ sub handle_move {
 
     my $objects = $self->objects;
     @$objects = grep { $_->valid } @$objects;
+
+    my $s1 = $self->player1->spaceship;
+    my $s2 = $self->player2->spaceship;
+    if ( $s1->power <= 0 && $s2->power <= 0 ) {
+        $self->game->transit_to(
+            'game_over',
+            players => $self->players,
+            message => 'Tie Game'
+        );
+    }
+    elsif ( $s1->power <= 0 ) {
+        $self->game->transit_to(
+            'game_over',
+            players => $self->players,
+            message => 'Player 2 Wins'
+        );
+    }
+    elsif ( $s2->power <= 0 ) {
+        $self->game->transit_to(
+            'game_over',
+            players => $self->players,
+            message => 'Player 1 Wins'
+        );
+    }
 
     my $w = $app->w;
     my $h = $app->h;
@@ -175,8 +209,11 @@ sub _handle_key {
 
     foreach my $control ( @{ $self->controls } ) {
         if ( defined $control->{$state}{$key} ) {
-            $control->{$state}{$key}
-                ->( $self, map { $_->spaceship } @{ $self->players } );
+            $control->{$state}{$key}->(
+                $self,
+                $self->player1->spaceship,
+                $self->player2->spaceship
+            );
         }
     }
 }
