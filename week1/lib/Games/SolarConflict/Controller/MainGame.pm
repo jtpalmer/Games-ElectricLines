@@ -101,14 +101,8 @@ around BUILDARGS => sub {
 
     my $player2
         = $players->create( player => $game->get_sub_container('player2') )
-        ->resolve( service => 'human_player' );
-
-=pod
-    if ( $arg{players} != 1 ) {
-    }
-    else {
-    }
-=cut
+        ->resolve( service =>
+            ( $args{players} == 1 ? 'computer_player' : 'human_player' ) );
 
     return $class->$orig( %args, player1 => $player1, player2 => $player2 );
 };
