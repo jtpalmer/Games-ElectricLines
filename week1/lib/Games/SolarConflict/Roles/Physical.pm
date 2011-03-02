@@ -64,8 +64,13 @@ after BUILD => sub {
 sub force_on {
     my ( $self, $obj ) = @_;
 
-    my $f = $self->mass * $obj->mass / $self->distance_from($obj);
-    return ( $f * ($self->x - $obj->x), $f * ($self->y - $obj->y));
+    my $distance = $self->distance_from($obj);
+    return 0 if $distance == 0;
+
+    my $f = $self->mass * $obj->mass / ($distance * $distance);
+    my $fx = $f * ($self->x - $obj->x) / $distance;
+    my $fy = $f * ($self->y - $obj->y) / $distance;
+    return ( $fx, $fy );
 }
 
 sub distance_from {
