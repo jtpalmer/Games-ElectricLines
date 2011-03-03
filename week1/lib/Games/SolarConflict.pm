@@ -52,16 +52,18 @@ sub _build_container {
 
         container view => as {
             service background => (
-                class => 'SDLx::Surface',
-                block => sub {
+                lifecycle => 'Singleton',
+                class     => 'SDLx::Surface',
+                block     => sub {
                     my $s = shift;
                     return SDLx::Surface->load( $s->param('image') );
                 },
                 dependencies => { image => depends_on('/image/background') },
             );
             service sun => (
-                class => 'SDLx::Sprite',
-                block => sub {
+                class     => 'SDLx::Sprite',
+                lifecycle => 'Singleton',
+                block     => sub {
                     my $s = shift;
                     my $sun
                         = SDLx::Sprite->new( image => $s->param('image') );
@@ -83,15 +85,18 @@ sub _build_container {
         container players => ['player'] => as {
             service human_player => (
                 class        => 'Games::SolarConflict::HumanPlayer',
+                lifecycle    => 'Singleton',
                 dependencies => { spaceship => depends_on('spaceship') },
             );
             service computer_player => (
                 class        => 'Games::SolarConflict::ComputerPlayer',
+                lifecycle    => 'Singleton',
                 dependencies => { spaceship => depends_on('spaceship') },
             );
             service spaceship => (
-                class => 'Games::SolarConflict::Spaceship',
-                block => sub {
+                class     => 'Games::SolarConflict::Spaceship',
+                lifecycle => 'Singleton',
+                block     => sub {
                     my $s = shift;
                     my @torpedos;
                     push @torpedos, Games::SolarConflict::Torpedo->new()
@@ -104,8 +109,9 @@ sub _build_container {
                 dependencies => { sprite => depends_on('spaceship_sprite') },
             );
             service spaceship_sprite => (
-                class => 'Games::SolarConflict::Sprite::Rotatable',
-                block => sub {
+                class     => 'Games::SolarConflict::Sprite::Rotatable',
+                lifecycle => 'Singleton',
+                block     => sub {
                     my $s      = shift;
                     my $sprite = SDLx::Sprite::Animated->new(
                         rect  => $s->param('rect'),
@@ -126,6 +132,7 @@ sub _build_container {
         container object => as {
             service sun => (
                 class        => 'Games::SolarConflict::Sun',
+                lifecycle    => 'Singleton',
                 dependencies => { sprite => depends_on('/view/sun') },
                 parameters   => {
                     x => { isa => 'Num' },
@@ -138,6 +145,7 @@ sub _build_container {
         container controller => as {
             service main_menu => (
                 class        => 'Games::SolarConflict::Controller::MainMenu',
+                lifecycle    => 'Singleton',
                 dependencies => { game => ( service game => $self ) },
             );
             service main_game => (
@@ -150,6 +158,7 @@ sub _build_container {
             );
             service game_over => (
                 class        => 'Games::SolarConflict::Controller::GameOver',
+                lifecycle    => 'Singleton',
                 dependencies => { game => ( service game => $self ) },
                 parameters   => {
                     players => { isa => 'Num' },
