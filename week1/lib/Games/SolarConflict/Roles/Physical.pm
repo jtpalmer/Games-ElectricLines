@@ -1,5 +1,5 @@
 package Games::SolarConflict::Roles::Physical;
-use Moose::Role;
+use Mouse::Role;
 use SDLx::Controller::Interface;
 use SDLx::Controller::State;
 use Math::Trig;
@@ -42,7 +42,6 @@ has peers => (
     is       => 'rw',
     isa      => 'ArrayRef[Games::SolarConflict::Roles::Physical]',
     default  => sub { [] },
-    weak_ref => 1,
 );
 
 has valid => (
@@ -119,6 +118,6 @@ sub acc {
 # do nothing by default
 sub interact { }
 
-no Moose::Role;
+no Mouse::Role;
 
 1;

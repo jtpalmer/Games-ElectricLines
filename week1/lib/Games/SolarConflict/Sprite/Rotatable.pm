@@ -1,5 +1,5 @@
 package Games::SolarConflict::Sprite::Rotatable;
-use Moose;
+use Mouse;
 use SDLx::Sprite::Animated;
 use namespace::clean -except => 'meta';
 

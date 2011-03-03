@@ -1,5 +1,5 @@
 package Games::SolarConflict::Roles::Controller;
-use Moose::Role;
+use Mouse::Role;
 
 has game => (
     is       => 'rw',
@@ -7,6 +7,6 @@ has game => (
     required => 1,
 );
 
-no Moose::Role;
+no Mouse::Role;
 
 1;

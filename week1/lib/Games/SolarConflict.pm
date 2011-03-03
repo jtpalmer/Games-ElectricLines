@@ -1,5 +1,5 @@
 package Games::SolarConflict;
-use Moose;
+use Mouse;
 use Bread::Board;
 use Path::Class;
 use SDLx::App;

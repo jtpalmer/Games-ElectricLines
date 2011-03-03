@@ -1,5 +1,5 @@
 package Games::SolarConflict::HumanPlayer;
-use Moose;
+use Mouse;
 use namespace::clean -except => 'meta';
 
 with 'Games::SolarConflict::Roles::Player';

@@ -1,8 +1,8 @@
 package Games::SolarConflict::Roles::Drawable;
-use Moose::Role;
+use Mouse::Role;
 
 requires qw( draw );
 
-no Moose::Role;
+no Mouse::Role;
 
 1;

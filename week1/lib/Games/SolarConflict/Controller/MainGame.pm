@@ -1,5 +1,5 @@
 package Games::SolarConflict::Controller::MainGame;
-use Moose;
+use Mouse;
 use SDL::Event;
 use SDL::Events;
 use Games::SolarConflict::Roles::Player;
@@ -34,13 +34,16 @@ has sun => (
 );
 
 has objects => (
-    traits  => ['Array'],
     is      => 'ro',
     isa     => 'ArrayRef',
     isa     => 'ArrayRef[Games::SolarConflict::Roles::Physical]',
     default => sub { [] },
-    handles => { add_object => 'push' },
 );
+
+sub add_object {
+    my ( $self, $obj ) = @_;
+    push @{ $self->objects }, $obj;
+}
 
 has controls => (
     is      => 'ro',
@@ -240,9 +243,8 @@ sub _fire_torpedo {
     # TODO: limit number of torpedos
 
     my $torpedo = $self->game->resolve( service => 'object/torpedo' );
-
-    $torpedo->interface->attach( $self->game->app, sub { } );
     $torpedo->peers( $self->objects );
+    $torpedo->interface->attach( $self->game->app, sub { } );
     $self->add_object($torpedo);
 
     $ship->fire_torpedo($torpedo);

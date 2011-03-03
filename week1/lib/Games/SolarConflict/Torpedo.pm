@@ -1,5 +1,5 @@
 package Games::SolarConflict::Torpedo;
-use Moose;
+use Mouse;
 use SDL::Color;
 use SDL::GFX::Primitives;
 use namespace::clean -except => 'meta';

@@ -1,5 +1,5 @@
 package Games::SolarConflict::Controller::GameOver;
-use Moose;
+use Mouse;
 use SDL::Event;
 use SDL::Events;
 use namespace::clean -except => 'meta';

@@ -1,5 +1,5 @@
 package Games::SolarConflict::Roles::Player;
-use Moose::Role;
+use Mouse::Role;
 
 has spaceship => (
     is       => 'ro',
@@ -7,6 +7,6 @@ has spaceship => (
     required => 1,
 );
 
-no Moose::Role;
+no Mouse::Role;
 
 1;

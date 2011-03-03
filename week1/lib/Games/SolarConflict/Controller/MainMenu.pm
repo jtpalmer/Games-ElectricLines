@@ -1,5 +1,5 @@
 package Games::SolarConflict::Controller::MainMenu;
-use Moose;
+use Mouse;
 use SDL::Event;
 use SDL::Events;
 use namespace::clean -except => 'meta';

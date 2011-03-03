@@ -1,5 +1,5 @@
 package Games::SolarConflict::Sun;
-use Moose;
+use Mouse;
 use namespace::clean -except => 'meta';
 
 with 'Games::SolarConflict::Roles::Physical';

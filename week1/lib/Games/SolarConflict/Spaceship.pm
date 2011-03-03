@@ -1,5 +1,5 @@
 package Games::SolarConflict::Spaceship;
-use Moose;
+use Mouse;
 use Math::Trig qw( deg2rad );
 use namespace::clean -except => 'meta';
 
