@@ -11,7 +11,7 @@ has '+r' => ( default => 3 );
 
 has '+mass' => ( default => 1 );
 
-has '+valid' => ( default => 0 );
+has '+active' => ( default => 0 );
 
 has color => (
     is      => 'ro',
@@ -25,7 +25,7 @@ sub force_on { ( 0, 0 ) }
 sub interact {
     my ( $self, $obj ) = @_;
 
-    $self->valid(0);
+    $self->active(0);
 }
 
 sub draw {

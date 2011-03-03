@@ -93,7 +93,7 @@ sub fire_torpedo {
     $torpedo->y( $self->y + $dy * $dd );
     $torpedo->v_x( $v_x + $dx * $dv );
     $torpedo->v_y( $v_y + $dy * $dv );
-    $torpedo->valid(1);
+    $torpedo->active(1);
 }
 
 sub warp {
@@ -112,7 +112,7 @@ sub _torpedo {
     my ($self) = @_;
 
     foreach my $torpedo ( @{ $self->torpedos } ) {
-        return $torpedo unless $torpedo->valid;
+        return $torpedo unless $torpedo->active;
     }
 
     return;

@@ -43,7 +43,7 @@ has peers => (
     default => sub { [] },
 );
 
-has valid => (
+has active => (
     is      => 'rw',
     isa     => 'Bool',
     default => 1,

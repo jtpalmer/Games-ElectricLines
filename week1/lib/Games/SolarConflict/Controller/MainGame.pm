@@ -159,7 +159,7 @@ sub handle_show {
     $app->draw_rect( [ -20 + $app->w - $p2, $app->h - 40, $p2, 5 ],
         0xFFFFFFFF );
 
-    $_->draw($app) foreach grep { $_->valid } @{ $self->objects };
+    $_->draw($app) foreach grep { $_->active } @{ $self->objects };
 
     $app->update();
 }
@@ -184,9 +184,9 @@ sub handle_move {
     my ( $self, $step, $app, $t ) = @_;
 
     foreach my $obj ( @{ $self->objects } ) {
-        next unless $obj->valid;
+        next unless $obj->active;
         foreach my $other ( @{ $self->objects } ) {
-            next unless $other->valid;
+            next unless $other->active;
             next if $obj == $other;
 
             if ( $obj->intersects($other) ) {
@@ -223,7 +223,7 @@ sub handle_move {
     my $h = $app->h;
 
     foreach my $obj ( @{ $self->objects } ) {
-        next unless $obj->valid;
+        next unless $obj->active;
         $obj->x( $obj->x - $w ) if $obj->x > $w;
         $obj->x( $obj->x + $w ) if $obj->x < 0;
         $obj->y( $obj->y - $h ) if $obj->y > $h;
