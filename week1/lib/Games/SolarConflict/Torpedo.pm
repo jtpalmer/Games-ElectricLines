@@ -11,6 +11,8 @@ has '+r' => ( default => 3 );
 
 has '+mass' => ( default => 1 );
 
+has '+valid' => ( default => 0 );
+
 has color => (
     is      => 'ro',
     isa     => 'Int',

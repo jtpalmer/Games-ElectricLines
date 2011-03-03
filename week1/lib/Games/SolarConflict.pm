@@ -4,6 +4,7 @@ use Bread::Board;
 use Path::Class;
 use SDLx::App;
 use SDL::Rect;
+use Games::SolarConflict::Torpedo;
 use namespace::clean -except => 'meta';
 
 has app => (
@@ -89,7 +90,17 @@ sub _build_container {
                 dependencies => { spaceship => depends_on('spaceship') },
             );
             service spaceship => (
-                class        => 'Games::SolarConflict::Spaceship',
+                class => 'Games::SolarConflict::Spaceship',
+                block => sub {
+                    my $s = shift;
+                    my @torpedos;
+                    push @torpedos, Games::SolarConflict::Torpedo->new()
+                        for 1 .. 10;
+                    return Games::SolarConflict::Spaceship->new(
+                        sprite   => $s->param('sprite'),
+                        torpedos => \@torpedos,
+                    );
+                },
                 dependencies => { sprite => depends_on('spaceship_sprite') },
             );
             service spaceship_sprite => (

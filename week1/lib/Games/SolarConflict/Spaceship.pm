@@ -28,6 +28,12 @@ has sprite => (
     handles => [qw( draw rect )],
 );
 
+has torpedos => (
+    is      => 'ro',
+    isa     => 'ArrayRef[Games::SolarConflict::Torpedo]',
+    default => sub { [] },
+);
+
 with 'Games::SolarConflict::Roles::Drawable';
 
 before draw => sub {
@@ -65,7 +71,11 @@ sub decrease_power {
 }
 
 sub fire_torpedo {
-    my ( $self, $torpedo ) = @_;
+    my ($self) = @_;
+
+    my $torpedo = $self->_torpedo;
+
+    return unless $torpedo;
 
     $self->decrease_power( $torpedo->mass / 4 );
 
@@ -83,6 +93,7 @@ sub fire_torpedo {
     $torpedo->y( $self->y + $dy * $dd );
     $torpedo->v_x( $v_x + $dx * $dv );
     $torpedo->v_y( $v_y + $dy * $dv );
+    $torpedo->valid(1);
 }
 
 sub warp {
@@ -95,6 +106,16 @@ sub warp {
     $self->v_x(0);
     $self->v_y(0);
     $self->ang_v(0);
+}
+
+sub _torpedo {
+    my ($self) = @_;
+
+    foreach my $torpedo ( @{ $self->torpedos } ) {
+        return $torpedo unless $torpedo->valid;
+    }
+
+    return;
 }
 
 __PACKAGE__->meta->make_immutable;

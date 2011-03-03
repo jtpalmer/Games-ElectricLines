@@ -57,7 +57,7 @@ has controls => (
     lazy    => 1,
     default => sub {
         [   {   down => {
-                    q => sub { $_[0]->_fire_torpedo( $_[1] ) },
+                    q => sub { $_[1]->fire_torpedo() },
                     w => sub { $_[1]->d_a(10) },
                     a => sub { $_[1]->ang_a(-5) },
                     s => sub { $_[0]->_warp_ship( $_[1] ) },
@@ -70,7 +70,7 @@ has controls => (
                 },
             },
             {   down => {
-                    u => sub { $_[0]->_fire_torpedo( $_[2] ) },
+                    u => sub { $_[2]->fire_torpedo() },
                     i => sub { $_[2]->d_a(10) },
                     j => sub { $_[2]->ang_a(-5) },
                     k => sub { $_[0]->_warp_ship( $_[2] ) },
@@ -137,10 +137,13 @@ sub BUILD {
 
     $s1->interface->attach( $app, sub { } );
     $s2->interface->attach( $app, sub { } );
+    $_->interface->attach( $app, sub { } )
+        foreach ( @{ $s1->torpedos }, @{ $s2->torpedos } );
 
     $self->add_object( $self->sun );
-    $self->add_object( $self->player1->spaceship );
-    $self->add_object( $self->player2->spaceship );
+    $self->add_object($s1);
+    $self->add_object($s2);
+    $self->add_object($_) foreach ( @{ $s1->torpedos }, @{ $s2->torpedos } );
 
     $_->peers( $self->objects ) foreach @{ $self->objects };
 }
@@ -156,7 +159,7 @@ sub handle_show {
     $app->draw_rect( [ -20 + $app->w - $p2, $app->h - 40, $p2, 5 ],
         0xFFFFFFFF );
 
-    $_->draw($app) foreach @{ $self->objects };
+    $_->draw($app) foreach grep { $_->valid } @{ $self->objects };
 
     $app->update();
 }
@@ -181,7 +184,9 @@ sub handle_move {
     my ( $self, $step, $app, $t ) = @_;
 
     foreach my $obj ( @{ $self->objects } ) {
+        next unless $obj->valid;
         foreach my $other ( @{ $self->objects } ) {
+            next unless $other->valid;
             next if $obj == $other;
 
             if ( $obj->intersects($other) ) {
@@ -189,9 +194,6 @@ sub handle_move {
             }
         }
     }
-
-    my $objects = $self->objects;
-    @$objects = grep { $_->valid } @$objects;
 
     my $s1 = $self->player1->spaceship;
     my $s2 = $self->player2->spaceship;
@@ -221,6 +223,7 @@ sub handle_move {
     my $h = $app->h;
 
     foreach my $obj ( @{ $self->objects } ) {
+        next unless $obj->valid;
         $obj->x( $obj->x - $w ) if $obj->x > $w;
         $obj->x( $obj->x + $w ) if $obj->x < 0;
         $obj->y( $obj->y - $h ) if $obj->y > $h;
@@ -244,19 +247,6 @@ sub _warp_ship {
     my ( $self, $ship ) = @_;
 
     $ship->warp( rand( $self->game->app->w ), rand( $self->game->app->h ) );
-}
-
-sub _fire_torpedo {
-    my ( $self, $ship ) = @_;
-
-    # TODO: limit number of torpedos
-
-    my $torpedo = $self->game->resolve( service => 'object/torpedo' );
-    $torpedo->peers( $self->objects );
-    $torpedo->interface->attach( $self->game->app, sub { } );
-    $self->add_object($torpedo);
-
-    $ship->fire_torpedo($torpedo);
 }
 
 __PACKAGE__->meta->make_immutable;
