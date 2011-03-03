@@ -45,12 +45,28 @@ sub _build_container {
     return container app => as {
 
         container image => as {
-            service sun => $self->assets->file('sun.bmp');
+            service background => $self->assets->file('background.bmp');
+            service sun        => $self->assets->file('sun.bmp');
         };
 
         container view => as {
+            service background => (
+                class => 'SDLx::Surface',
+                block => sub {
+                    my $s = shift;
+                    return SDLx::Surface->load( $s->param('image') );
+                },
+                dependencies => { image => depends_on('/image/background') },
+            );
             service sun => (
-                class        => 'SDLx::Sprite',
+                class => 'SDLx::Sprite',
+                block => sub {
+                    my $s = shift;
+                    my $sun
+                        = SDLx::Sprite->new( image => $s->param('image') );
+                    $sun->alpha_key(0xFF0000);
+                    return $sun;
+                },
                 dependencies => { image => depends_on('/image/sun') },
             );
         };
@@ -115,8 +131,11 @@ sub _build_container {
             );
             service main_game => (
                 class        => 'Games::SolarConflict::Controller::MainGame',
-                dependencies => { game => ( service game => $self ) },
-                parameters   => { players => { isa => 'Num' } },
+                dependencies => {
+                    game       => ( service game => $self ),
+                    background => depends_on('/view/background'),
+                },
+                parameters => { players => { isa => 'Num' } },
             );
             service game_over => (
                 class        => 'Games::SolarConflict::Controller::GameOver',

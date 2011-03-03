@@ -26,6 +26,12 @@ has player2 => (
     required => 1,
 );
 
+has background => (
+    is       => 'ro',
+    isa      => 'SDLx::Surface',
+    required => 1,
+);
+
 has sun => (
     is      => 'ro',
     isa     => 'Games::SolarConflict::Sun',
@@ -142,8 +148,7 @@ sub BUILD {
 sub handle_show {
     my ( $self, $delta, $app ) = @_;
 
-    # TODO: draw background
-    $app->draw_rect( [ 0, 0, $app->w, $app->h ], 0x000000FF );
+    $self->background->blit( $app, [ 0, 0, $app->w, $app->h ] );
 
     # TODO: draw power bar for both players
 
