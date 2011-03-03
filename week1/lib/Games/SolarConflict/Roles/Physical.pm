@@ -39,9 +39,9 @@ has state => (
 );
 
 has peers => (
-    is       => 'rw',
-    isa      => 'ArrayRef[Games::SolarConflict::Roles::Physical]',
-    default  => sub { [] },
+    is      => 'rw',
+    isa     => 'ArrayRef[Games::SolarConflict::Roles::Physical]',
+    default => sub { [] },
 );
 
 has valid => (

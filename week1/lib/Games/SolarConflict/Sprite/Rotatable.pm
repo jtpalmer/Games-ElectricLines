@@ -4,10 +4,10 @@ use SDLx::Sprite::Animated;
 use namespace::clean -except => 'meta';
 
 has _sprite => (
-    is  => 'ro',
-    isa => 'SDLx::Sprite::Animated',
+    is       => 'ro',
+    isa      => 'SDLx::Sprite::Animated',
     init_arg => 'sprite',
-    handles => [qw( x y h w rect clip draw )],
+    handles  => [qw( x y h w rect clip draw )],
 );
 
 has increment => (
