@@ -183,14 +183,16 @@ sub handle_event {
 sub handle_move {
     my ( $self, $step, $app, $t ) = @_;
 
-    foreach my $obj ( @{ $self->objects } ) {
-        next unless $obj->active;
-        foreach my $other ( @{ $self->objects } ) {
-            next unless $other->active;
+    my @active = grep { $_->active } @{ $self->objects };
+    my $max = $#active;
+    foreach my $obj_id ( 0 .. $max ) {
+        my $obj = $active[$obj_id];
+        foreach my $other_id ( $obj_id + 1 .. $max ) {
+            my $other = $active[$other_id];
             next if $obj == $other;
-
             if ( $obj->intersects($other) ) {
                 $obj->interact($other);
+                $other->interact($obj);
             }
         }
     }
