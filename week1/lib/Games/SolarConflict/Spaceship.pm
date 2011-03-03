@@ -73,7 +73,7 @@ around active => sub {
 sub draw {
     my ( $self, $surface ) = @_;
 
-    if ( $self->power > 0 ) {
+    if ( $self->power >= 0 ) {
         $self->sprite->x( $self->x - $self->rect->w / 2 );
         $self->sprite->y( $self->y - $self->rect->h / 2 );
         $self->sprite->rotation( $self->rotation );
