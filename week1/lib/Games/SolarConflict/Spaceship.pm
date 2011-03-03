@@ -97,7 +97,7 @@ sub decrease_power {
 
     my $power = $self->power - $damage;
 
-    if ( $self->power > 0 && $power <= 0 ) {
+    if ( $self->power >= 0 && $power < 0 ) {
         $self->explosion->start;
         $self->active(0);
     }
@@ -112,7 +112,8 @@ sub fire_torpedo {
 
     return unless $torpedo;
 
-    $self->decrease_power( $torpedo->mass / 4 );
+    return if $self->power < 1;
+    $self->decrease_power(1);
 
     my $angle = deg2rad( $self->rotation );
 
