@@ -102,11 +102,15 @@ sub _build_container {
                     push @torpedos, Games::SolarConflict::Torpedo->new()
                         for 1 .. 10;
                     return Games::SolarConflict::Spaceship->new(
-                        sprite   => $s->param('sprite'),
-                        torpedos => \@torpedos,
+                        sprite    => $s->param('sprite'),
+                        explosion => $s->param('explosion'),
+                        torpedos  => \@torpedos,
                     );
                 },
-                dependencies => { sprite => depends_on('spaceship_sprite') },
+                dependencies => {
+                    sprite    => depends_on('spaceship_sprite'),
+                    explosion => depends_on('explosion_sprite'),
+                },
             );
             service spaceship_sprite => (
                 class     => 'Games::SolarConflict::Sprite::Rotatable',
@@ -127,6 +131,26 @@ sub _build_container {
                     image => depends_on('player/spaceship_image'),
                 },
             );
+            service explosion_sprite => (
+                class => 'SDLx::Sprite::Animated',
+                block => sub {
+                    my $s         = shift;
+                    my $explosion = SDLx::Sprite::Animated->new(
+                        image           => $s->param('image'),
+                        rect            => $s->param('rect'),
+                        max_loops       => 1,
+                        ticks_per_frame => 2,
+                    );
+                    $explosion->alpha_key(0x00FF00);
+                    return $explosion;
+                },
+                dependencies => {
+                    image => depends_on('explosion_image'),
+                    rect  => depends_on('explosion_rect'),
+                },
+            );
+            service explosion_image => $self->assets->file('explosion.bmp');
+            service explosion_rect => SDL::Rect->new( 0, 0, 32, 32 );
         };
 
         container object => as {

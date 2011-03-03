@@ -155,6 +155,8 @@ sub handle_show {
 
     my $p1 = $self->player1->spaceship->power * 3;
     my $p2 = $self->player2->spaceship->power * 3;
+    $p1 = 0 if $p1 < 0;
+    $p2 = 0 if $p2 < 0;
     $app->draw_rect( [ 20, $app->h - 40, $p1, 5 ], 0xFFFFFFFF );
     $app->draw_rect( [ -20 + $app->w - $p2, $app->h - 40, $p2, 5 ],
         0xFFFFFFFF );
@@ -199,21 +201,21 @@ sub handle_move {
 
     my $s1 = $self->player1->spaceship;
     my $s2 = $self->player2->spaceship;
-    if ( $s1->power <= 0 && $s2->power <= 0 ) {
+    if ( !$s1->active && !$s2->active ) {
         $self->game->transit_to(
             'game_over',
             players => $self->players,
             message => 'Tie Game'
         );
     }
-    elsif ( $s1->power <= 0 ) {
+    elsif ( !$s1->active ) {
         $self->game->transit_to(
             'game_over',
             players => $self->players,
             message => 'Player 2 Wins'
         );
     }
-    elsif ( $s2->power <= 0 ) {
+    elsif ( !$s2->active ) {
         $self->game->transit_to(
             'game_over',
             players => $self->players,

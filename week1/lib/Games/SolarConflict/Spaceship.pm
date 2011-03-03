@@ -23,9 +23,16 @@ has power => (
 );
 
 has sprite => (
-    is      => 'ro',
-    isa     => 'Games::SolarConflict::Sprite::Rotatable',
-    handles => [qw( draw rect )],
+    is       => 'ro',
+    isa      => 'Games::SolarConflict::Sprite::Rotatable',
+    required => 1,
+    handles  => [qw( rect )],
+);
+
+has explosion => (
+    is       => 'ro',
+    isa      => 'SDLx::Sprite::Animated',
+    required => 1,
 );
 
 has torpedos => (
@@ -35,14 +42,6 @@ has torpedos => (
 );
 
 with 'Games::SolarConflict::Roles::Drawable';
-
-before draw => sub {
-    my ($self) = @_;
-
-    $self->sprite->x( $self->x - $self->rect->w / 2 );
-    $self->sprite->y( $self->y - $self->rect->h / 2 );
-    $self->sprite->rotation( $self->rotation );
-};
 
 before acc => sub {
     my ( $self, $acc ) = @_;
@@ -58,6 +57,35 @@ sub _update_acc {
     $self->a_y( $acc * -cos($angle) );
 }
 
+around active => sub {
+    my ( $orig, $self, $v ) = @_;
+
+    return $self->$orig($v) if defined $v;
+
+    if ( $self->$orig ) {
+        return 1;
+    }
+    else {
+        return $self->explosion->current_loop == 1;
+    }
+};
+
+sub draw {
+    my ( $self, $surface ) = @_;
+
+    if ( $self->power > 0 ) {
+        $self->sprite->x( $self->x - $self->rect->w / 2 );
+        $self->sprite->y( $self->y - $self->rect->h / 2 );
+        $self->sprite->rotation( $self->rotation );
+        $self->sprite->draw($surface);
+    }
+    else {
+        $self->explosion->x( $self->x - $self->rect->w / 2 );
+        $self->explosion->y( $self->y - $self->rect->h / 2 );
+        $self->explosion->draw($surface);
+    }
+}
+
 sub interact {
     my ( $self, $obj ) = @_;
 
@@ -67,7 +95,14 @@ sub interact {
 sub decrease_power {
     my ( $self, $damage ) = @_;
 
-    $self->power( $self->power - $damage );
+    my $power = $self->power - $damage;
+
+    if ( $self->power > 0 && $power <= 0 ) {
+        $self->explosion->start;
+        $self->active(0);
+    }
+
+    $self->power($power);
 }
 
 sub fire_torpedo {
@@ -99,6 +134,7 @@ sub fire_torpedo {
 sub warp {
     my ( $self, $x, $y ) = @_;
 
+    return if $self->power < 10;
     $self->decrease_power(10);
 
     $self->x($x);
