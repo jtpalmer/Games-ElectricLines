@@ -1,14 +1,13 @@
 package Games::SolarConflict::Sprite::Rotatable;
 use Moose;
-use MooseX::NonMoose;
 use SDLx::Sprite::Animated;
 use namespace::clean -except => 'meta';
 
-extends 'SDLx::Sprite::Animated';
-
-has map => (
+has _sprite => (
     is  => 'ro',
-    isa => 'ArrayRef[]',
+    isa => 'SDLx::Sprite::Animated',
+    init_arg => 'sprite',
+    handles => [qw( x y h w rect clip draw )],
 );
 
 has increment => (

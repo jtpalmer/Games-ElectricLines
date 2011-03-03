@@ -80,13 +80,14 @@ sub _build_container {
                 class => 'Games::SolarConflict::Sprite::Rotatable',
                 block => sub {
                     my $s = shift;
-                    my $spaceship
-                        = Games::SolarConflict::Sprite::Rotatable->new(
+                    my $sprite = SDLx::Sprite::Animated->new(
                         rect  => $s->param('rect'),
                         image => $s->param('image'),
-                        );
-                    $spaceship->alpha_key(0xFF0000);
-                    return $spaceship;
+                    );
+                    $sprite->alpha_key(0xFF0000);
+                    return Games::SolarConflict::Sprite::Rotatable->new(
+                        sprite => $sprite,
+                    );
                 },
                 dependencies => {
                     rect =>
