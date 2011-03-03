@@ -7,7 +7,7 @@ with 'Games::SolarConflict::Roles::Physical';
 
 has '+r' => ( default => 14 );
 
-has '+mass' => ( default => 100 );
+has '+mass' => ( default => 101 );
 
 # directional acceleration
 has d_a => (
