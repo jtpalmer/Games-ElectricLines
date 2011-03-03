@@ -19,7 +19,7 @@ has d_a => (
 has power => (
     is      => 'rw',
     isa     => 'Num',
-    default => 50,
+    default => 100,
 );
 
 has sprite => (

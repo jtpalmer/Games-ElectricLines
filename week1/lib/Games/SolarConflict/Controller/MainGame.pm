@@ -150,7 +150,11 @@ sub handle_show {
 
     $self->background->blit( $app, [ 0, 0, $app->w, $app->h ] );
 
-    # TODO: draw power bar for both players
+    my $p1 = $self->player1->spaceship->power * 3;
+    my $p2 = $self->player2->spaceship->power * 3;
+    $app->draw_rect( [ 20, $app->h - 40, $p1, 5 ], 0xFFFFFFFF );
+    $app->draw_rect( [ -20 + $app->w - $p2, $app->h - 40, $p2, 5 ],
+        0xFFFFFFFF );
 
     $_->draw($app) foreach @{ $self->objects };
 
