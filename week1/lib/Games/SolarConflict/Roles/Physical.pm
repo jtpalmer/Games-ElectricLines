@@ -30,7 +30,7 @@ has interface => (
 );
 
 has state => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => 'SDLx::Controller::State',
     lazy    => 1,
     handles => [qw( x y rotation v_x v_y ang_v )],
