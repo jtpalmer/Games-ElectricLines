@@ -9,7 +9,7 @@ with 'Games::SolarConflict::Roles::Physical';
 
 has '+r' => ( default => 3 );
 
-has '+mass' => ( default => 1 );
+has '+mass' => ( default => 10 );
 
 has '+active' => ( default => 0 );
 
