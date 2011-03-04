@@ -9,6 +9,8 @@ use namespace::clean -except => 'meta';
 
 extends 'Bread::Board::Container';
 
+has '+name' => ( default => 'container' );
+
 has assets => (
     is       => 'ro',
     isa      => 'Path::Class::Dir',
