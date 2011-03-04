@@ -127,6 +127,8 @@ sub BUILD {
     $s1->x( $app->w / 4 );
     $s1->v_y(-20);
     $s1->ang_v(5);
+    $s1->active(1);
+    $s1->visible(1);
 
     my $s2 = $self->player2->spaceship;
     $s2->y( $app->h / 2 );
@@ -134,6 +136,8 @@ sub BUILD {
     $s2->v_y(20);
     $s2->ang_v(5);
     $s2->rotation(180);
+    $s2->active(1);
+    $s2->visible(1);
 
     $s1->interface->attach( $app, sub { } );
     $s2->interface->attach( $app, sub { } );
@@ -161,7 +165,7 @@ sub handle_show {
     $app->draw_rect( [ -20 + $app->w - $p2, $app->h - 40, $p2, 5 ],
         0xFFFFFFFF );
 
-    $_->draw($app) foreach grep { $_->active } @{ $self->objects };
+    $_->draw($app) foreach @{ $self->objects };
 
     $app->update();
 }
@@ -201,21 +205,21 @@ sub handle_move {
 
     my $s1 = $self->player1->spaceship;
     my $s2 = $self->player2->spaceship;
-    if ( !$s1->active && !$s2->active ) {
+    if ( !$s1->visible && !$s2->visible ) {
         $self->game->transit_to(
             'game_over',
             players => $self->players,
             message => 'Tie Game'
         );
     }
-    elsif ( !$s1->active ) {
+    elsif ( !$s1->visible ) {
         $self->game->transit_to(
             'game_over',
             players => $self->players,
             message => 'Player 2 Wins'
         );
     }
-    elsif ( !$s2->active ) {
+    elsif ( !$s2->visible ) {
         $self->game->transit_to(
             'game_over',
             players => $self->players,
@@ -227,7 +231,7 @@ sub handle_move {
     my $h = $app->h;
 
     foreach my $obj ( @{ $self->objects } ) {
-        next unless $obj->active;
+        next unless $obj->visible;
         $obj->x( $obj->x - $w ) if $obj->x > $w;
         $obj->x( $obj->x + $w ) if $obj->x < 0;
         $obj->y( $obj->y - $h ) if $obj->y > $h;

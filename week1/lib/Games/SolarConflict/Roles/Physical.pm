@@ -101,10 +101,13 @@ sub intersects {
 sub acc {
     my ( $self, $time, $state ) = @_;
 
+    return ( 0, 0, 0 ) unless $self->active;
+
     my ( $a_x, $a_y, $ang_a ) = ( $self->a_x, $self->a_y, $self->ang_a );
 
     foreach my $peer ( @{ $self->peers } ) {
         next if $peer == $self;
+        next unless $peer->active;
 
         my ( $f_x, $f_y ) = $peer->force_on($self);
         $a_x += $f_x / $self->mass;

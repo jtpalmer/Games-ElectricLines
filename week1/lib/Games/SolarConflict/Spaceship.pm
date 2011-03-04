@@ -57,19 +57,6 @@ sub _update_acc {
     $self->a_y( $acc * -cos($angle) );
 }
 
-around active => sub {
-    my ( $orig, $self, $v ) = @_;
-
-    return $self->$orig($v) if defined $v;
-
-    if ( $self->$orig ) {
-        return 1;
-    }
-    else {
-        return $self->explosion->current_loop == 1;
-    }
-};
-
 sub draw {
     my ( $self, $surface ) = @_;
 
@@ -80,6 +67,7 @@ sub draw {
         $self->sprite->draw($surface);
     }
     else {
+        return $self->visible(0) if $self->explosion->current_loop != 1;
         $self->explosion->x( $self->x - $self->rect->w / 2 );
         $self->explosion->y( $self->y - $self->rect->h / 2 );
         $self->explosion->draw($surface);

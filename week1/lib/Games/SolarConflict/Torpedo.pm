@@ -13,11 +13,18 @@ has '+mass' => ( default => 10 );
 
 has '+active' => ( default => 0 );
 
+has '+visible' => ( default => 0 );
+
 has color => (
     is      => 'ro',
     isa     => 'Int',
     default => 0xFFFFFFFF,
 );
+
+after active => sub {
+    my ( $self, $active ) = @_;
+    $self->visible($active) if defined $active;
+};
 
 # torpedos have negligible gravitational force
 sub force_on { ( 0, 0 ) }
