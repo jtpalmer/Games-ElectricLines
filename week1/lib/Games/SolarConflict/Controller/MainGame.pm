@@ -58,9 +58,9 @@ has controls => (
         [   {   down => {
                     q => sub { $_[1]->fire_torpedo() },
                     w => sub { $_[1]->d_a(10) },
-                    a => sub { $_[1]->ang_a(-5) },
+                    a => sub { $_[1]->ang_a(-10) },
                     s => sub { $_[0]->_warp_ship( $_[1] ) },
-                    d => sub { $_[1]->ang_a(5) },
+                    d => sub { $_[1]->ang_a(10) },
                 },
                 up => {
                     w => sub { $_[1]->d_a(0) },
@@ -71,9 +71,9 @@ has controls => (
             {   down => {
                     u => sub { $_[2]->fire_torpedo() },
                     i => sub { $_[2]->d_a(10) },
-                    j => sub { $_[2]->ang_a(-5) },
+                    j => sub { $_[2]->ang_a(-10) },
                     k => sub { $_[0]->_warp_ship( $_[2] ) },
-                    l => sub { $_[2]->ang_a(5) },
+                    l => sub { $_[2]->ang_a(10) },
                 },
                 up => {
                     i => sub { $_[2]->d_a(0) },
