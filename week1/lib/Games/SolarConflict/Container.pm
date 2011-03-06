@@ -156,8 +156,8 @@ sub BUILD {
                 lifecycle    => 'Singleton',
                 dependencies => { sprite => depends_on('/view/sun') },
                 parameters   => {
-                    x => { isa => 'Num' },
-                    y => { isa => 'Num' },
+                    x => { isa => 'Num', optional => 1 },
+                    y => { isa => 'Num', optional => 1 },
                 },
             );
             service torpedo => ( class => 'Games::SolarConflict::Torpedo' );
@@ -174,6 +174,7 @@ sub BUILD {
                 dependencies => {
                     game       => depends_on('/game'),
                     background => depends_on('/view/background'),
+                    sun        => depends_on('/object/sun'),
                 },
                 parameters => { players => { isa => 'Num' } },
             );

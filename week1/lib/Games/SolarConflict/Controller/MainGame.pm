@@ -33,10 +33,9 @@ has background => (
 );
 
 has sun => (
-    is      => 'ro',
-    isa     => 'Games::SolarConflict::Sun',
-    lazy    => 1,
-    builder => '_build_sun',
+    is       => 'ro',
+    isa      => 'Games::SolarConflict::Sun',
+    required => 1,
 );
 
 has objects => (
@@ -86,18 +85,6 @@ has controls => (
     },
 );
 
-sub _build_sun {
-    my ($self) = @_;
-
-    my $sun = $self->game->resolve(
-        service    => 'object/sun',
-        parameters => {
-            x => $self->game->app->w / 2,
-            y => $self->game->app->h / 2,
-        }
-    );
-}
-
 around BUILDARGS => sub {
     my ( $orig, $class, %args ) = @_;
 
@@ -122,6 +109,10 @@ sub BUILD {
 
     my $app = $self->game->app;
 
+    my $sun = $self->sun;
+    $sun->x( $app->w / 2 );
+    $sun->y( $app->h / 2 );
+
     my $s1 = $self->player1->spaceship;
     $s1->y( $app->h / 2 );
     $s1->x( $app->w / 4 );
@@ -144,7 +135,7 @@ sub BUILD {
     $_->interface->attach( $app, sub { } )
         foreach ( @{ $s1->torpedos }, @{ $s2->torpedos } );
 
-    $self->add_object( $self->sun );
+    $self->add_object($sun);
     $self->add_object($s1);
     $self->add_object($s2);
     $self->add_object($_) foreach ( @{ $s1->torpedos }, @{ $s2->torpedos } );
