@@ -9,9 +9,7 @@ DESCRIPTION
 
 PREREQUISITES
     * Mouse
-    * namespace::clean
     * Math::Trig
     * SDL::GFX::Primitives
-    * Bread::Board
     * Path::Class
     * FindBin
