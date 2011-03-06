@@ -173,6 +173,8 @@ sub handle_event {
 sub handle_move {
     my ( $self, $step, $app, $t ) = @_;
 
+    $self->player2->handle_move( $step, $app, $t ) if $self->players == 1;
+
     my @active = grep { $_->active } @{ $self->objects };
     my $max = $#active;
     foreach my $obj_id ( 0 .. $max ) {
@@ -226,7 +228,7 @@ sub handle_move {
 sub _handle_key {
     my ( $self, $key, $state ) = @_;
 
-    foreach my $control ( @{ $self->controls } ) {
+    foreach my $control ( @{ $self->controls }[ 0 .. $self->players - 1 ] ) {
         if ( defined $control->{$state}{$key} ) {
             $control->{$state}{$key}->(
                 $self, $self->player1->spaceship, $self->player2->spaceship

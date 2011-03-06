@@ -11,6 +11,7 @@ use Games::SolarConflict::Sun;
 use Games::SolarConflict::Spaceship;
 use Games::SolarConflict::Torpedo;
 use Games::SolarConflict::HumanPlayer;
+use Games::SolarConflict::ComputerPlayer;
 use Games::SolarConflict::Controller::MainMenu;
 use Games::SolarConflict::Controller::MainGame;
 use Games::SolarConflict::Controller::GameOver;
@@ -157,8 +158,14 @@ sub get_player {
 
     my $spaceship = 'spaceship' . $args{number};
 
-    return Games::SolarConflict::HumanPlayer->new(
-        spaceship => $self->$spaceship, );
+    if ( $args{type} eq 'human' ) {
+        return Games::SolarConflict::HumanPlayer->new(
+            spaceship => $self->$spaceship );
+    }
+    else {
+        return Games::SolarConflict::ComputerPlayer->new(
+            spaceship => $self->$spaceship );
+    }
 }
 
 no Mouse::Role;
