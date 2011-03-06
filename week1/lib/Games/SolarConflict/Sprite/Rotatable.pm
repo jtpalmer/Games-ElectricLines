@@ -7,7 +7,7 @@ has _sprite => (
     is       => 'ro',
     isa      => 'SDLx::Sprite::Animated',
     init_arg => 'sprite',
-    handles  => [qw( x y h w rect clip draw alpha_key )],
+    handles  => [qw( x y h w rect clip draw draw_xy alpha_key )],
 );
 
 has increment => (
