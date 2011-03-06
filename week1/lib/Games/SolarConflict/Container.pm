@@ -64,11 +64,7 @@ sub _build_controllers {
         },
         main_game => sub {
             my (%args) = @_;
-            return Games::SolarConflict::Controller::MainGame->new(
-                %args,
-                background => $self->background,
-                sun        => $self->sun,
-            );
+            return Games::SolarConflict::Controller::MainGame->new(%args);
         },
         game_over => sub {
             my (%args) = @_;

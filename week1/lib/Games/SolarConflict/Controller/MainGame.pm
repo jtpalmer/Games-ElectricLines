@@ -96,7 +96,13 @@ around BUILDARGS => sub {
         type   => ( $args{players} == 1 ? 'computer' : 'human' )
     );
 
-    return $class->$orig( %args, player1 => $player1, player2 => $player2 );
+    return $class->$orig(
+        %args,
+        background => $game->background,
+        sun        => $game->sun,
+        player1    => $player1,
+        player2    => $player2,
+    );
 };
 
 sub BUILD {
