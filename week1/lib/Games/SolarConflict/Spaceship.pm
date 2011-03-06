@@ -130,6 +130,24 @@ sub _torpedo {
     return;
 }
 
+sub reset {
+    my ( $self ) = @_;
+
+    $self->active(1);
+    $self->visible(1);
+    $self->power(100);
+
+    $self->x(0);
+    $self->y(0);
+    $self->rotation(0);
+
+    $self->v_x(0);
+    $self->v_y(0);
+    $self->ang_v(0);
+
+    $_->active(0) foreach ( @{ $self->torpedos } );
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;

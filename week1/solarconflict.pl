@@ -4,9 +4,8 @@ use warnings;
 use FindBin qw( $Bin );
 use Path::Class;
 use lib "$Bin/lib";
-use Games::SolarConflict::Container;
+use Games::SolarConflict;
 
 my $share = dir( $Bin, 'share' );
-my $container = Games::SolarConflict::Container->new( assets => $share );
-my $game = $container->resolve( service => 'game' );
+my $game = Games::SolarConflict->new( assets => $share );
 $game->run();

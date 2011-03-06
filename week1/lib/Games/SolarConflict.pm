@@ -1,21 +1,8 @@
 package Games::SolarConflict;
 use Mouse;
-use SDLx::App;
 use namespace::clean -except => 'meta';
 
-has app => (
-    is       => 'ro',
-    isa      => 'SDLx::App',
-    required => 1,
-    handles  => [qw( run )],
-);
-
-has container => (
-    is       => 'ro',
-    isa      => 'Bread::Board::Container',
-    required => 1,
-    handles  => [qw( resolve get_sub_container )],
-);
+with 'Games::SolarConflict::Container';
 
 sub BUILD {
     my ($self) = @_;
@@ -30,10 +17,7 @@ sub transit_to {
 
     $app->remove_all_handlers();
 
-    my $controller = $self->resolve(
-        service    => "controller/$state",
-        parameters => \%params,
-    );
+    my $controller = $self->get_controller( $state, %params );
 
     $app->add_event_handler( sub { $controller->handle_event(@_) } )
         if $controller->can('handle_event');

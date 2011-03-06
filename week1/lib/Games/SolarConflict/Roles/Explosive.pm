@@ -2,7 +2,7 @@ package Games::SolarConflict::Roles::Explosive;
 use Mouse::Role;
 use SDLx::Sprite::Animated;
 
-requires qw( x y draw visible );
+requires qw( x y draw visible reset );
 
 has exploding => (
     is      => 'rw',
@@ -33,6 +33,12 @@ around draw => sub {
     else {
         return $self->$orig($surface);
     }
+};
+
+after reset => sub {
+    my ($self) = @_;
+    $self->explosion->sequence('default');
+    $self->exploding(0);
 };
 
 sub explode {

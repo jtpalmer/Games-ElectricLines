@@ -1,196 +1,166 @@
 package Games::SolarConflict::Container;
-use Moose;
-use Bread::Board;
-use Path::Class;
-use SDLx::App;
+use Mouse::Role;
 use SDL::Rect;
+use SDLx::App;
+use SDLx::Surface;
+use SDLx::Sprite;
+use SDLx::Sprite::Animated;
+use Games::SolarConflict;
+use Games::SolarConflict::Sprite::Rotatable;
+use Games::SolarConflict::Sun;
+use Games::SolarConflict::Spaceship;
 use Games::SolarConflict::Torpedo;
-use namespace::clean -except => 'meta';
+use Games::SolarConflict::HumanPlayer;
+use Games::SolarConflict::Controller::MainMenu;
+use Games::SolarConflict::Controller::MainGame;
+use Games::SolarConflict::Controller::GameOver;
 
-extends 'Bread::Board::Container';
-
-has '+name' => ( default => 'container' );
-
-has assets => (
+has app => (
     is       => 'ro',
-    isa      => 'Path::Class::Dir',
+    isa      => 'SDLx::App',
+    required => 1,
+    handles  => [qw( run )],
+);
+
+has background => (
+    is       => 'ro',
+    isa      => 'SDLx::Surface',
     required => 1,
 );
 
-sub BUILD {
-    my $self = shift;
+has sun => (
+    is       => 'ro',
+    isa      => 'Games::SolarConflict::Sun',
+    required => 1,
+);
 
-    container $self => as {
+has spaceship1 => (
+    is       => 'ro',
+    isa      => 'Games::SolarConflict::Spaceship',
+    required => 1,
+);
 
-        service game => (
-            class        => 'Games::SolarConflict',
-            lifecycle    => 'Singleton',
-            dependencies => {
-                app       => depends_on('/app'),
-                container => ( service container => $self ),
-            },
-        );
+has spaceship2 => (
+    is       => 'ro',
+    isa      => 'Games::SolarConflict::Spaceship',
+    required => 1,
+);
 
-        service app => (
-            class        => 'SDLx::App',
-            lifecycle    => 'Singleton',
-            dependencies => {
-                w     => ( service w     => 1024 ),
-                h     => ( service h     => 768 ),
-                title => ( service title => 'SolarConflict' ),
-                eoq   => ( service eoq   => 1 ),
-            },
-        );
+has _controllers => (
+    is      => 'ro',
+    isa     => 'HashRef',
+    lazy    => 1,
+    builder => '_build_controllers',
+);
 
-        container image => as {
-            service background => $self->assets->file('background.bmp');
-            service sun        => $self->assets->file('sun.bmp');
-        };
+sub _build_controllers {
+    my ($self) = @_;
 
-        container view => as {
-            service background => (
-                lifecycle => 'Singleton',
-                class     => 'SDLx::Surface',
-                block     => sub {
-                    my $s = shift;
-                    return SDLx::Surface->load( $s->param('image') );
-                },
-                dependencies => { image => depends_on('/image/background') },
+    return {
+        main_menu => sub {
+            my (%args) = @_;
+            return Games::SolarConflict::Controller::MainMenu->new(%args);
+        },
+        main_game => sub {
+            my (%args) = @_;
+            return Games::SolarConflict::Controller::MainGame->new(
+                %args,
+                background => $self->background,
+                sun        => $self->sun,
             );
-            service sun => (
-                class     => 'SDLx::Sprite',
-                lifecycle => 'Singleton',
-                block     => sub {
-                    my $s = shift;
-                    my $sun
-                        = SDLx::Sprite->new( image => $s->param('image') );
-                    $sun->alpha_key(0xFF0000);
-                    return $sun;
-                },
-                dependencies => { image => depends_on('/image/sun') },
-            );
-        };
-
-        container player1 => as {
-            service spaceship_image => $self->assets->file('spaceship1.bmp');
-        };
-
-        container player2 => as {
-            service spaceship_image => $self->assets->file('spaceship2.bmp');
-        };
-
-        container players => ['player'] => as {
-            service human_player => (
-                class        => 'Games::SolarConflict::HumanPlayer',
-                lifecycle    => 'Singleton',
-                dependencies => { spaceship => depends_on('spaceship') },
-            );
-            service computer_player => (
-                class        => 'Games::SolarConflict::ComputerPlayer',
-                lifecycle    => 'Singleton',
-                dependencies => { spaceship => depends_on('spaceship') },
-            );
-            service spaceship => (
-                class     => 'Games::SolarConflict::Spaceship',
-                lifecycle => 'Singleton',
-                block     => sub {
-                    my $s = shift;
-                    my @torpedos;
-                    push @torpedos, Games::SolarConflict::Torpedo->new()
-                        for 1 .. 10;
-                    return Games::SolarConflict::Spaceship->new(
-                        sprite    => $s->param('sprite'),
-                        explosion => $s->param('explosion'),
-                        torpedos  => \@torpedos,
-                    );
-                },
-                dependencies => {
-                    sprite    => depends_on('spaceship_sprite'),
-                    explosion => depends_on('explosion_sprite'),
-                },
-            );
-            service spaceship_sprite => (
-                class     => 'Games::SolarConflict::Sprite::Rotatable',
-                lifecycle => 'Singleton',
-                block     => sub {
-                    my $s      = shift;
-                    my $sprite = SDLx::Sprite::Animated->new(
-                        rect  => $s->param('rect'),
-                        image => $s->param('image'),
-                    );
-                    $sprite->alpha_key(0xFF0000);
-                    return Games::SolarConflict::Sprite::Rotatable->new(
-                        sprite => $sprite );
-                },
-                dependencies => {
-                    rect =>
-                        ( service rect => SDL::Rect->new( 0, 0, 32, 32 ) ),
-                    image => depends_on('player/spaceship_image'),
-                },
-            );
-            service explosion_sprite => (
-                class => 'SDLx::Sprite::Animated',
-                block => sub {
-                    my $s         = shift;
-                    my $explosion = SDLx::Sprite::Animated->new(
-                        image           => $s->param('image'),
-                        rect            => $s->param('rect'),
-                        max_loops       => 1,
-                        ticks_per_frame => 2,
-                    );
-                    $explosion->alpha_key(0x00FF00);
-                    return $explosion;
-                },
-                dependencies => {
-                    image => depends_on('explosion_image'),
-                    rect  => depends_on('explosion_rect'),
-                },
-            );
-            service explosion_image => $self->assets->file('explosion.bmp');
-            service explosion_rect => SDL::Rect->new( 0, 0, 32, 32 );
-        };
-
-        container object => as {
-            service sun => (
-                class        => 'Games::SolarConflict::Sun',
-                lifecycle    => 'Singleton',
-                dependencies => { sprite => depends_on('/view/sun') },
-                parameters   => {
-                    x => { isa => 'Num', optional => 1 },
-                    y => { isa => 'Num', optional => 1 },
-                },
-            );
-            service torpedo => ( class => 'Games::SolarConflict::Torpedo' );
-        };
-
-        container controller => as {
-            service main_menu => (
-                class        => 'Games::SolarConflict::Controller::MainMenu',
-                lifecycle    => 'Singleton',
-                dependencies => { game => depends_on('/game') },
-            );
-            service main_game => (
-                class        => 'Games::SolarConflict::Controller::MainGame',
-                dependencies => {
-                    game       => depends_on('/game'),
-                    background => depends_on('/view/background'),
-                    sun        => depends_on('/object/sun'),
-                },
-                parameters => { players => { isa => 'Num' } },
-            );
-            service game_over => (
-                class        => 'Games::SolarConflict::Controller::GameOver',
-                lifecycle    => 'Singleton',
-                dependencies => { game => depends_on('/game') },
-                parameters   => {
-                    players => { isa => 'Num' },
-                    message => { isa => 'Str' },
-                },
-            );
-        };
+        },
+        game_over => sub {
+            my (%args) = @_;
+            return Games::SolarConflict::Controller::GameOver->new(%args);
+        },
     };
 }
 
-__PACKAGE__->meta->make_immutable;
+around BUILDARGS => sub {
+    my ( $orig, $class, %args ) = @_;
+
+    my $app = SDLx::App->new(
+        w     => 1024,
+        h     => 768,
+        title => 'SolarConflict',
+        eoq   => 1,
+    );
+
+    my $assets = $args{assets};
+
+    my %file = (
+        background => $assets->file('background.bmp'),
+        sun        => $assets->file('sun.bmp'),
+        spaceship1 => $assets->file('spaceship1.bmp'),
+        spaceship2 => $assets->file('spaceship2.bmp'),
+        explosion  => $assets->file('explosion.bmp'),
+    );
+
+    my %view = (
+        background => SDLx::Surface->load( $file{background} ),
+        sun        => SDLx::Sprite->new( image => $file{sun} ),
+        spaceship1 => Games::SolarConflict::Sprite::Rotatable->new(
+            sprite => SDLx::Sprite::Animated->new(
+                rect  => SDL::Rect->new( 0, 0, 32, 32 ),
+                image => $file{spaceship1},
+            ),
+        ),
+        spaceship2 => Games::SolarConflict::Sprite::Rotatable->new(
+            sprite => SDLx::Sprite::Animated->new(
+                rect  => SDL::Rect->new( 0, 0, 32, 32 ),
+                image => $file{spaceship2},
+            ),
+        ),
+        explosion => SDLx::Sprite::Animated->new(
+            rect            => SDL::Rect->new( 0, 0, 32, 32 ),
+            image           => $file{explosion},
+            max_loops       => 1,
+            ticks_per_frame => 2,
+        ),
+    );
+
+    $view{sun}->alpha_key(0xFF0000);
+    $view{spaceship1}->alpha_key(0xFF0000);
+    $view{spaceship2}->alpha_key(0xFF0000);
+    $view{explosion}->alpha_key(0x00FF00);
+
+    my @torpedos1 = map { Games::SolarConflict::Torpedo->new() } 1 .. 10;
+    my @torpedos2 = map { Games::SolarConflict::Torpedo->new() } 1 .. 10;
+
+    my %objects = (
+        app        => $app,
+        background => $view{background},
+        sun        => Games::SolarConflict::Sun->new( sprite => $view{sun} ),
+        spaceship1 => Games::SolarConflict::Spaceship->new(
+            sprite    => $view{spaceship1},
+            explosion => $view{explosion},
+            torpedos  => \@torpedos1,
+        ),
+        spaceship2 => Games::SolarConflict::Spaceship->new(
+            sprite    => $view{spaceship2},
+            explosion => $view{explosion},
+            torpedos  => \@torpedos2,
+        ),
+    );
+
+    return $class->$orig( %args, %objects );
+};
+
+sub get_controller {
+    my ( $self, $name, %args ) = @_;
+
+    return $self->_controllers->{$name}->( %args, game => $self );
+}
+
+sub get_player {
+    my ( $self, %args ) = @_;
+
+    my $spaceship = 'spaceship' . $args{number};
+
+    return Games::SolarConflict::HumanPlayer->new(
+        spaceship => $self->$spaceship, );
+}
+
+no Mouse::Role;
 
 1;

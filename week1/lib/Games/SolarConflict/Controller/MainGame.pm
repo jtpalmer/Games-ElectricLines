@@ -90,16 +90,10 @@ around BUILDARGS => sub {
 
     my $game = $args{game};
 
-    my $players = $game->get_sub_container('players');
-
-    my $player1
-        = $players->create( player => $game->get_sub_container('player1') )
-        ->resolve( service => 'human_player' );
-
-    my $player2
-        = $players->create( player => $game->get_sub_container('player2') )
-        ->resolve( service =>
-            ( $args{players} == 1 ? 'computer_player' : 'human_player' ) );
+    my $player1 = $game->get_player( number => 1, type => 'human' );
+    my $player2 = $game->get_player( number => 2, type =>
+            ( $args{players} == 1 ? 'computer' : 'human' )
+    );
 
     return $class->$orig( %args, player1 => $player1, player2 => $player2 );
 };
@@ -114,21 +108,19 @@ sub BUILD {
     $sun->y( $app->h / 2 );
 
     my $s1 = $self->player1->spaceship;
-    $s1->y( $app->h / 2 );
+    $s1->reset();
     $s1->x( $app->w / 4 );
+    $s1->y( $app->h / 2 );
     $s1->v_y(-20);
     $s1->ang_v(5);
-    $s1->active(1);
-    $s1->visible(1);
 
     my $s2 = $self->player2->spaceship;
-    $s2->y( $app->h / 2 );
+    $s2->reset();
     $s2->x( 3 * $app->w / 4 );
+    $s2->y( $app->h / 2 );
+    $s2->rotation(180);
     $s2->v_y(20);
     $s2->ang_v(5);
-    $s2->rotation(180);
-    $s2->active(1);
-    $s2->visible(1);
 
     $s1->interface->attach( $app, sub { } );
     $s2->interface->attach( $app, sub { } );
