@@ -91,8 +91,9 @@ around BUILDARGS => sub {
     my $game = $args{game};
 
     my $player1 = $game->get_player( number => 1, type => 'human' );
-    my $player2 = $game->get_player( number => 2, type =>
-            ( $args{players} == 1 ? 'computer' : 'human' )
+    my $player2 = $game->get_player(
+        number => 2,
+        type   => ( $args{players} == 1 ? 'computer' : 'human' )
     );
 
     return $class->$orig( %args, player1 => $player1, player2 => $player2 );

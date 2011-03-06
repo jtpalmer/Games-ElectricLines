@@ -131,7 +131,7 @@ sub _torpedo {
 }
 
 sub reset {
-    my ( $self ) = @_;
+    my ($self) = @_;
 
     $self->active(1);
     $self->visible(1);
