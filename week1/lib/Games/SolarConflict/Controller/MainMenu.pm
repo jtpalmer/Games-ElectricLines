@@ -2,7 +2,6 @@ package Games::SolarConflict::Controller::MainMenu;
 use Mouse;
 use SDL::Event;
 use SDL::Events;
-use namespace::clean -except => 'meta';
 
 with 'Games::SolarConflict::Roles::Controller';
 
@@ -48,5 +47,7 @@ sub handle_event {
 }
 
 __PACKAGE__->meta->make_immutable;
+
+no Mouse;
 
 1;

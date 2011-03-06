@@ -1,7 +1,6 @@
 package Games::SolarConflict::Spaceship;
 use Mouse;
 use Math::Trig qw( deg2rad );
-use namespace::clean -except => 'meta';
 
 with 'Games::SolarConflict::Roles::Physical';
 
@@ -149,5 +148,7 @@ sub reset {
 }
 
 __PACKAGE__->meta->make_immutable;
+
+no Mouse;
 
 1;

@@ -1,6 +1,5 @@
 package Games::SolarConflict::ComputerPlayer;
 use Mouse;
-use namespace::clean -except => 'meta';
 
 with 'Games::SolarConflict::Roles::Player';
 
@@ -20,5 +19,7 @@ sub handle_move {
 }
 
 __PACKAGE__->meta->make_immutable;
+
+no Mouse;
 
 1;

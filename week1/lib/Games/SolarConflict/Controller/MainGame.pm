@@ -4,7 +4,6 @@ use SDL::Event;
 use SDL::Events;
 use Games::SolarConflict::Roles::Player;
 use Games::SolarConflict::Roles::Physical;
-use namespace::clean -except => 'meta';
 
 with 'Games::SolarConflict::Roles::Controller';
 
@@ -250,5 +249,7 @@ sub _warp_ship {
 }
 
 __PACKAGE__->meta->make_immutable;
+
+no Mouse;
 
 1;

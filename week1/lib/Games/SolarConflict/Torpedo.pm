@@ -2,7 +2,6 @@ package Games::SolarConflict::Torpedo;
 use Mouse;
 use SDL::Color;
 use SDL::GFX::Primitives;
-use namespace::clean -except => 'meta';
 
 with 'Games::SolarConflict::Roles::Drawable';
 with 'Games::SolarConflict::Roles::Physical';
@@ -43,5 +42,7 @@ sub draw {
 }
 
 __PACKAGE__->meta->make_immutable;
+
+no Mouse;
 
 1;

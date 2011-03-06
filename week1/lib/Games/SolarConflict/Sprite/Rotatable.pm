@@ -1,7 +1,6 @@
 package Games::SolarConflict::Sprite::Rotatable;
 use Mouse;
 use SDLx::Sprite::Animated;
-use namespace::clean -except => 'meta';
 
 has _sprite => (
     is       => 'ro',
@@ -45,5 +44,7 @@ sub rotation {
 }
 
 __PACKAGE__->meta->make_immutable;
+
+no Mouse;
 
 1;

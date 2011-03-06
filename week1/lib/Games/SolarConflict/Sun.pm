@@ -1,6 +1,5 @@
 package Games::SolarConflict::Sun;
 use Mouse;
-use namespace::clean -except => 'meta';
 
 with 'Games::SolarConflict::Roles::Physical';
 
@@ -27,5 +26,7 @@ before draw => sub {
 sub acc { ( 0, 0, 0 ) }
 
 __PACKAGE__->meta->make_immutable;
+
+no Mouse;
 
 1;

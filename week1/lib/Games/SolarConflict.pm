@@ -1,6 +1,5 @@
 package Games::SolarConflict;
 use Mouse;
-use namespace::clean -except => 'meta';
 
 with 'Games::SolarConflict::Container';
 
@@ -30,5 +29,7 @@ sub transit_to {
 }
 
 __PACKAGE__->meta->make_immutable;
+
+no Mouse;
 
 1;
