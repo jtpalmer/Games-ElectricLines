@@ -9,7 +9,5 @@ DESCRIPTION
 
 PREREQUISITES
     * Mouse
-    * Math::Trig
-    * SDL::GFX::Primitives
     * Path::Class
-    * FindBin
+    * SDL (with SDL_gfx)
