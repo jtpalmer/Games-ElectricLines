@@ -78,7 +78,7 @@ around BUILDARGS => sub {
 
     my $app = SDLx::App->new(
         w     => 1024,
-        h     => 768,
+        h     => 600,
         title => 'SolarConflict',
         eoq   => 1,
     );
