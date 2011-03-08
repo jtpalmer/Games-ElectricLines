@@ -6,7 +6,6 @@ use SDLx::App;
 use SDLx::Surface;
 use SDLx::Sprite;
 use SDLx::Sprite::Animated;
-use Games::SolarConflict;
 use Games::SolarConflict::Sprite::Rotatable;
 use Games::SolarConflict::Sun;
 use Games::SolarConflict::Spaceship;
