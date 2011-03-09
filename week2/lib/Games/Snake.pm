@@ -37,8 +37,9 @@ around BUILDARGS => sub {
     my $size = 10;
 
     my $level = Games::Snake::Level->new(
-        w => $app->w / $size,
-        h => $app->h / $size,
+        size => $size,
+        w    => $app->w / $size,
+        h    => $app->h / $size,
     );
 
     my $player = Games::Snake::Player->new(
@@ -71,10 +72,10 @@ sub handle_event {
     my $player = $self->player;
 
     if ( $event->type == SDL_KEYDOWN ) {
-        $player->direction( [ -1, 0 ] ) if $event->key_sym == SDLK_LEFT;
-        $player->direction( [ 1, 0 ] )  if $event->key_sym == SDLK_RIGHT;
-        $player->direction( [ 0, -1, ] )  if $event->key_sym == SDLK_UP;
-        $player->direction( [ 0, 1, ] )  if $event->key_sym == SDLK_DOWN;
+        $player->direction( [ -1, 0 ] )  if $event->key_sym == SDLK_LEFT;
+        $player->direction( [ 1,  0 ] )  if $event->key_sym == SDLK_RIGHT;
+        $player->direction( [ 0,  -1 ] ) if $event->key_sym == SDLK_UP;
+        $player->direction( [ 0,  1 ] )  if $event->key_sym == SDLK_DOWN;
     }
 }
 
