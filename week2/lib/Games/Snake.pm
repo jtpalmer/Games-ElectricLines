@@ -143,8 +143,9 @@ sub handle_show {
     $app->draw_rect(
         [ ( map { $_ * $size } @{ $self->apple } ), $size, $size ],
         0xC20006FF );
-    $self->level->draw($app);
+
     $self->player->draw($app);
+    $self->level->draw($app);
 
     if ( !$self->player->alive ) {
         $app->draw_gfx_text( [ 12, 12 ],
