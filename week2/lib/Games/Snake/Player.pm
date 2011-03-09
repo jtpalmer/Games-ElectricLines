@@ -10,6 +10,12 @@ has segments => (
 has speed => (
     is      => 'rw',
     isa     => 'Num',
+    default => 0.1,
+);
+
+has _move_time => (
+    is      => 'rw',
+    isa     => 'Num',
     default => 0,
 );
 
@@ -55,9 +61,12 @@ sub body {
 }
 
 sub move {
-    my ($self) = @_;
+    my ( $self, $t ) = @_;
 
     return unless $self->alive;
+
+    return unless $t >= $self->_move_time + $self->speed;
+    $self->_move_time($t);
 
     my $segments = $self->segments;
 

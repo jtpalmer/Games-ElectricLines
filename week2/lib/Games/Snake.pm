@@ -117,7 +117,7 @@ sub handle_move {
     my $level  = $self->level;
     my $player = $self->player;
 
-    $player->move;
+    $player->move($t);
 
     if ( $player->hit_self() || $level->is_wall( $player->head ) ) {
         $player->alive(0);
