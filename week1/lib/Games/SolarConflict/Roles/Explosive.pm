@@ -28,7 +28,8 @@ around draw => sub {
         }
         $e->x( $self->x - $e->rect->w / 2 );
         $e->y( $self->y - $e->rect->h / 2 );
-        return $e->draw($surface);
+        $e->draw($surface);
+        return $e->rect;
     }
     else {
         return $self->$orig($surface);
