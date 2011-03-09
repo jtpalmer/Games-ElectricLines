@@ -53,9 +53,10 @@ sub _build_app {
 sub _build_level {
     my ($self) = @_;
     return Games::Snake::Level->new(
-        size => $self->size,
-        w    => $self->app->w / $self->size,
-        h    => $self->app->h / $self->size,
+        size  => $self->size,
+        w     => $self->app->w / $self->size,
+        h     => $self->app->h / $self->size,
+        color => 0x00C2BB0FF,
     );
 }
 
@@ -63,7 +64,7 @@ sub _build_player {
     my ($self) = @_;
     return Games::Snake::Player->new(
         size     => $self->size,
-        color    => 0x00FF00FF,
+        color    => 0x6EC200FF,
         growing  => 9,
         segments => [ [ 40, 30 ] ],
         direction => [ 1, 0 ],
@@ -140,7 +141,7 @@ sub handle_show {
     my $size = $self->size;
     $app->draw_rect(
         [ ( map { $_ * $size } @{ $self->apple } ), $size, $size ],
-        0xFF0000FF );
+        0xC20006FF );
     $self->level->draw($app);
     $self->player->draw($app);
 
