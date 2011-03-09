@@ -45,6 +45,13 @@ sub _build_walls {
     return \@walls;
 }
 
+sub is_wall {
+    my ( $self, $coord ) = @_;
+    return
+        scalar grep { $coord->[0] == $_->[0] && $coord->[1] == $_->[1] }
+        @{ $self->walls };
+}
+
 sub draw {
     my ( $self, $surface ) = @_;
 

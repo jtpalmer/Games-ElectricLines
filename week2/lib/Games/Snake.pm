@@ -82,12 +82,16 @@ sub handle_event {
 sub handle_move {
     my ( $self, $step, $app, $t ) = @_;
 
-    $self->player->move;
+    my $level  = $self->level;
+    my $player = $self->player;
+
+    $player->move;
 
     # TODO: Collision detecion
-    # if ( hit wall or self ) {
-    #   death
-    # }
+    if ( $player->hit_self() || $level->is_wall( $player->head ) ) {
+        $player->alive(0);
+    }
+
     # elsif ( hit apple ){
     #   $self->player->growth( += X )
     # }

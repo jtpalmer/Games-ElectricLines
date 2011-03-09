@@ -19,6 +19,12 @@ has direction => (
     default => sub { [] },
 );
 
+has alive => (
+    is      => 'rw',
+    isa     => 'Bool',
+    default => 1,
+);
+
 has growing => (
     is      => 'rw',
     isa     => 'Int',
@@ -44,11 +50,14 @@ sub head {
 
 sub body {
     my ($self) = @_;
-    return [ @{ $self->segments }[ 1, -1 ] ];
+    my @segments = @{ $self->segments };
+    return [ @segments[ 1 .. $#segments ] ];
 }
 
 sub move {
     my ($self) = @_;
+
+    return unless $self->alive;
 
     my $segments = $self->segments;
 
@@ -62,6 +71,15 @@ sub move {
     else {
         pop @$segments;
     }
+}
+
+sub hit_self {
+    my ($self) = @_;
+
+    my @head = @{ $self->head };
+    return
+        scalar grep { $head[0] == $_->[0] && $head[1] == $_->[1] }
+        @{ $self->body };
 }
 
 sub draw {
