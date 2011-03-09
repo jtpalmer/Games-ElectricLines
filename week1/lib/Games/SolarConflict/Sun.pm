@@ -22,6 +22,12 @@ before draw => sub {
     $self->sprite->y( $self->y - $self->sprite->h / 2 );
 };
 
+around draw => sub {
+    my ( $orig, $self, $surface ) = @_;
+    $self->$orig($surface);
+    return $self->sprite->rect;
+};
+
 # The sun doesn't move
 sub acc { ( 0, 0, 0 ) }
 

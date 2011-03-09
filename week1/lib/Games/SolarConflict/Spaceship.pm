@@ -58,6 +58,7 @@ sub draw {
     $self->sprite->y( $self->y - $self->rect->h / 2 );
     $self->sprite->rotation( $self->rotation );
     $self->sprite->draw($surface);
+    return $self->rect;
 }
 
 sub interact {

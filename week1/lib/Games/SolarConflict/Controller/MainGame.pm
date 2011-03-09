@@ -154,9 +154,8 @@ sub handle_show {
     $app->draw_rect( [ -20 + $app->w - $p2, $app->h - 40, $p2, 5 ],
         0xFFFFFFFF );
 
-    $_->draw($app) foreach @{ $self->objects };
-
-    $app->update();
+    my @rects = map { $_->draw($app) } @{ $self->objects };
+    $app->update( \@rects );
 }
 
 sub handle_event {

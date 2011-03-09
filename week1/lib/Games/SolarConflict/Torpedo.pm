@@ -39,6 +39,10 @@ sub draw {
 
     SDL::GFX::Primitives::filled_circle_color( $surface, $self->x, $self->y,
         $self->r, $self->color );
+    return [
+        $self->x - $self->r / 2, $self->y - $self->r / 2,
+        $self->r,                $self->r
+    ];
 }
 
 __PACKAGE__->meta->make_immutable;
