@@ -43,6 +43,7 @@ has apple => (
 
 sub _build_app {
     return SDLx::App->new(
+        title => 'Snake',
         w     => 800,
         h     => 600,
         eoq   => 1,
