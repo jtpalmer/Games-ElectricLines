@@ -21,7 +21,7 @@ has size => (
 );
 
 has player => (
-    is      => 'ro',
+    is      => 'rw',
     isa     => 'Games::Snake::Player',
     lazy    => 1,
     builder => '_build_player',
@@ -103,6 +103,11 @@ sub handle_event {
         $player->direction( [ 1,  0 ] )  if $event->key_sym == SDLK_RIGHT;
         $player->direction( [ 0,  -1 ] ) if $event->key_sym == SDLK_UP;
         $player->direction( [ 0,  1 ] )  if $event->key_sym == SDLK_DOWN;
+
+        my $key = SDL::Events::get_key_name( $event->key_sym );
+        if ( !$player->alive && $key eq 'r' ) {
+            $self->player( $self->_build_player );
+        }
     }
 }
 
@@ -136,6 +141,10 @@ sub handle_show {
         0xFF0000FF );
     $self->level->draw($app);
     $self->player->draw($app);
+
+    $app->draw_gfx_text( [ 12, 12 ], 0xFFFFFFFF, 'Press R to restart' )
+        unless $self->player->alive;
+
     $app->update();
 }
 
