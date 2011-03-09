@@ -1,0 +1,9 @@
+NAME
+    Games::Snake - A simple version of the classic Snake video game
+
+SYNOPSIS
+    perl snake.pl
+
+PREREQUISITES
+    * SDL
+    * Mouse
