@@ -43,9 +43,10 @@ has apple => (
 
 sub _build_app {
     return SDLx::App->new(
-        w   => 800,
-        h   => 600,
-        eoq => 1,
+        w     => 800,
+        h     => 600,
+        eoq   => 1,
+        delay => 100,
     );
 }
 
