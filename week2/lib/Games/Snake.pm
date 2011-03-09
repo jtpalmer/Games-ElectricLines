@@ -46,7 +46,7 @@ sub _build_app {
         w     => 800,
         h     => 600,
         eoq   => 1,
-        delay => 100,
+        delay => 20,
     );
 }
 
@@ -126,6 +126,7 @@ sub handle_move {
     elsif ($player->head->[0] == $self->apple->[0]
         && $player->head->[1] == $self->apple->[1] )
     {
+        $player->speed( $player->speed * 0.9 );
         $player->growing( $player->growing + 10 );
         $self->apple( $self->_build_apple );
     }
