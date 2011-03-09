@@ -63,7 +63,7 @@ sub _build_player {
     return Games::Snake::Player->new(
         size     => $self->size,
         color    => 0x00FF00FF,
-        growing  => 20,
+        growing  => 9,
         segments => [ [ 40, 30 ] ],
         direction => [ 1, 0 ],
     );
@@ -142,8 +142,12 @@ sub handle_show {
     $self->level->draw($app);
     $self->player->draw($app);
 
-    $app->draw_gfx_text( [ 12, 12 ], 0xFFFFFFFF, 'Press R to restart' )
-        unless $self->player->alive;
+    if ( !$self->player->alive ) {
+        $app->draw_gfx_text( [ 12, 12 ],
+            0xFFFFFFFF,
+            'Snake length: ' . scalar @{ $self->player->segments } );
+        $app->draw_gfx_text( [ 12, 22 ], 0xFFFFFFFF, 'Press R to restart' );
+    }
 
     $app->update();
 }
