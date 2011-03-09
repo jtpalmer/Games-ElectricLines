@@ -7,28 +7,31 @@ use Games::Snake::Player;
 use Games::Snake::Level;
 
 has app => (
-    is       => 'ro',
-    isa      => 'SDLx::App',
-    required => 1,
-    handles  => [qw( run )],
+    is      => 'ro',
+    isa     => 'SDLx::App',
+    lazy    => 1,
+    builder => '_build_app',
+    handles => [qw( run )],
 );
 
 has size => (
-    is       => 'ro',
-    isa      => 'Int',
-    required => 1,
+    is      => 'ro',
+    isa     => 'Int',
+    default => 10,
 );
 
 has player => (
-    is       => 'ro',
-    isa      => 'Games::Snake::Player',
-    required => 1,
+    is      => 'ro',
+    isa     => 'Games::Snake::Player',
+    lazy    => 1,
+    builder => '_build_player',
 );
 
 has level => (
-    is       => 'ro',
-    isa      => 'Games::Snake::Level',
-    required => 1,
+    is      => 'ro',
+    isa     => 'Games::Snake::Level',
+    lazy    => 1,
+    builder => '_build_level',
 );
 
 has apple => (
@@ -37,6 +40,34 @@ has apple => (
     lazy    => 1,
     builder => '_build_apple',
 );
+
+sub _build_app {
+    return SDLx::App->new(
+        w   => 800,
+        h   => 600,
+        eoq => 1,
+    );
+}
+
+sub _build_level {
+    my ($self) = @_;
+    return Games::Snake::Level->new(
+        size => $self->size,
+        w    => $self->app->w / $self->size,
+        h    => $self->app->h / $self->size,
+    );
+}
+
+sub _build_player {
+    my ($self) = @_;
+    return Games::Snake::Player->new(
+        size     => $self->size,
+        color    => 0x00FF00FF,
+        growing  => 20,
+        segments => [ [ 40, 30 ] ],
+        direction => [ 1, 0 ],
+    );
+}
 
 sub _build_apple {
     my ($self) = @_;
@@ -52,39 +83,6 @@ sub _build_apple {
 
     return $coord;
 }
-
-around BUILDARGS => sub {
-    my ( $orig, $class ) = @_;
-
-    my $app = SDLx::App->new(
-        w   => 800,
-        h   => 600,
-        eoq => 1,
-    );
-
-    my $size = 10;
-
-    my $level = Games::Snake::Level->new(
-        size => $size,
-        w    => $app->w / $size,
-        h    => $app->h / $size,
-    );
-
-    my $player = Games::Snake::Player->new(
-        size     => $size,
-        color    => 0x00FF00FF,
-        growing  => 20,
-        segments => [ [ 40, 30 ] ],
-        direction => [ 1, 0 ],
-    );
-
-    return $class->$orig(
-        app    => $app,
-        player => $player,
-        level  => $level,
-        size   => $size,
-    );
-};
 
 sub BUILD {
     my ($self) = @_;
