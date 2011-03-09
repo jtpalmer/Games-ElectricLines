@@ -82,6 +82,14 @@ sub hit_self {
         @{ $self->body };
 }
 
+sub is_segment {
+    my ( $self, $coord ) = @_;
+
+    return
+        scalar grep { $coord->[0] == $_->[0] && $coord->[1] == $_->[1] }
+        @{ $self->segments };
+}
+
 sub draw {
     my ( $self, $surface ) = @_;
 

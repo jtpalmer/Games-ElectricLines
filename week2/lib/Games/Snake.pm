@@ -13,6 +13,12 @@ has app => (
     handles  => [qw( run )],
 );
 
+has size => (
+    is       => 'ro',
+    isa      => 'Int',
+    required => 1,
+);
+
 has player => (
     is       => 'ro',
     isa      => 'Games::Snake::Player',
@@ -24,6 +30,28 @@ has level => (
     isa      => 'Games::Snake::Level',
     required => 1,
 );
+
+has apple => (
+    is      => 'rw',
+    isa     => 'ArrayRef',
+    lazy    => 1,
+    builder => '_build_apple',
+);
+
+sub _build_apple {
+    my ($self) = @_;
+
+    my $level  = $self->level;
+    my $player = $self->player;
+
+    my $coord;
+
+    do {
+        $coord = [ int( rand( $level->w ) ), int( rand( $level->h ) ) ];
+    } while ( $player->is_segment($coord) || $level->is_wall($coord) );
+
+    return $coord;
+}
 
 around BUILDARGS => sub {
     my ( $orig, $class ) = @_;
@@ -54,6 +82,7 @@ around BUILDARGS => sub {
         app    => $app,
         player => $player,
         level  => $level,
+        size   => $size,
     );
 };
 
@@ -87,20 +116,26 @@ sub handle_move {
 
     $player->move;
 
-    # TODO: Collision detecion
     if ( $player->hit_self() || $level->is_wall( $player->head ) ) {
         $player->alive(0);
     }
-
-    # elsif ( hit apple ){
-    #   $self->player->growth( += X )
-    # }
+    elsif ($player->head->[0] == $self->apple->[0]
+        && $player->head->[1] == $self->apple->[1] )
+    {
+        $player->growing( $player->growing + 10 );
+        $self->apple( $self->_build_apple );
+    }
 }
 
 sub handle_show {
     my ( $self, $delta, $app ) = @_;
 
     $app->draw_rect( [ 0, 0, $app->w, $app->h ], 0x000000FF );
+
+    my $size = $self->size;
+    $app->draw_rect(
+        [ ( map { $_ * $size } @{ $self->apple } ), $size, $size ],
+        0xFF0000FF );
     $self->level->draw($app);
     $self->player->draw($app);
     $app->update();
