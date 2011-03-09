@@ -46,6 +46,7 @@ sub _build_app {
         w     => 800,
         h     => 600,
         eoq   => 1,
+        dt    => 0.05,
         delay => 20,
     );
 }
