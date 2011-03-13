@@ -35,9 +35,8 @@ has player => (
 );
 
 has player2 => (
-    is      => 'ro',
-    isa     => 'Games::Snake::RemotePlayer',
-    default => undef,
+    is  => 'rw',
+    isa => 'Games::Snake::RemotePlayer',
 );
 
 has level => (
@@ -103,7 +102,8 @@ sub _build_apple {
     do {
         do {
             $coord = [ int( rand( $level->w ) ), int( rand( $level->h ) ) ];
-        } while ( $player->is_segment($coord) || $level->is_wall($coord) );
+            } while ( $player->is_segment($coord)
+            || $level->is_wall($coord) );
     } while ( defined $p2 && $p2->is_segment($coord) );
 
     return $coord;
