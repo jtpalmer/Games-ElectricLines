@@ -8,28 +8,22 @@ use POE::Wheel::UDP;
 use POE::Filter::Stream;
 use Getopt::Long;
 
+my $QUEUE = {};
+
 sub main {
     my $addr;
-    my $addr2;
     my $port = 62174;
 
     my $result = GetOptions(
-        'addr=s'  => \$addr,
-        'addr2=s' => \$addr2,
-        'port=i'  => \$port,
+        'addr=s' => \$addr,
+        'port=i' => \$port,
     );
 
     POE::Session->create(
         inline_states => {
             _start => sub {
-                $_[HEAP]->{wheel0} = POE::Wheel::UDP->new(
+                $_[HEAP]->{wheel} = POE::Wheel::UDP->new(
                     LocalAddr  => $addr,
-                    LocalPort  => $port,
-                    InputEvent => 'input',
-                    Filter     => POE::Filter::Stream->new(),
-                );
-                $_[HEAP]->{wheel1} = POE::Wheel::UDP->new(
-                    LocalAddr  => $addr2,
                     LocalPort  => $port,
                     InputEvent => 'input',
                     Filter     => POE::Filter::Stream->new(),
@@ -38,12 +32,29 @@ sub main {
             input => sub {
                 my $input = $_[ARG0];
                 say $input->{addr}, ':', $input->{port};
-                $_[HEAP]->{wheel1}->put(
-                    {   payload => ['Test'],
-                        addr    => $input->{addr},
-                        port    => $input->{port},
-                    }
-                );
+                return unless $input->{payload}[0] eq 'setup';
+                if (%$QUEUE) {
+                    say 'putting';
+                    $_[HEAP]->{wheel}->put(
+                        {   payload => [ @$QUEUE{qw( addr port )} ],
+                            addr    => $input->{addr},
+                            port    => $input->{port},
+                        }
+                    );
+                    $_[HEAP]->{wheel}->put(
+                        {   payload => [ @$input{qw( addr port )} ],
+                            %$QUEUE
+                        }
+                    );
+
+                    undef $QUEUE;
+                }
+                else {
+                    $QUEUE = {
+                        addr => $input->{addr},
+                        port => $input->{port},
+                    };
+                }
             },
         },
     );
