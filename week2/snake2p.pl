@@ -19,12 +19,16 @@ my $result = GetOptions(
     'lport=i' => \$lport,
 );
 
+my $game = Games::Snake->new();
+
 my $p2 = Games::Snake::RemotePlayer->new(
+    game  => $game,
+    size  => $game->size,
     raddr => $raddr,
     rport => $rport,
     laddr => $laddr,
     lport => $lport,
 );
 
-my $game = Games::Snake->new( player2 => $p2 );
+$game->player2($p2);
 $game->run($p2);

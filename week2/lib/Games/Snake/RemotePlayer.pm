@@ -54,7 +54,8 @@ sub handle_remote {
     my ( $self, $wheel, $input ) = @_;
 
     my $data = $self->_deserialize($input);
-    $self->segments( $data->{segments} );
+    my $segments = $self->segments;
+    @$segments = @{ $data->{segments} };
 
     return;
 }

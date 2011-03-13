@@ -112,8 +112,6 @@ sub _build_apple {
 sub BUILD {
     my ($self) = @_;
 
-    $self->player2->game($self) if defined $self->player2;
-
     my $c = $self->c;
     $c->add_event_handler( sub { $self->handle_event(@_) } );
     $c->add_move_handler( sub  { $self->handle_move(@_) } );

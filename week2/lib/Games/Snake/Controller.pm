@@ -12,6 +12,7 @@ use SDL::Events;
 my %_stop;
 my %_t;
 my %_current_time;
+my %_transmit;
 
 sub run {
     my ( $self, $p2 ) = @_;
@@ -20,6 +21,7 @@ sub run {
     $_t{$ref}            = 0.0;
     $_stop{$ref}         = 0;
     $_current_time{$ref} = Time::HiRes::time;
+    $_transmit{$ref}     = 0;
 
     # TODO: eoq
     $self->add_event_handler( sub { $self->stop() if $_[0]->type == SDL_QUIT }
@@ -29,8 +31,6 @@ sub run {
         inline_states => {
             _start => sub {
                 if ( defined $p2 ) {
-                    warn 'Local: ', $p2->laddr, ':', $p2->lport, "\n";
-                    warn 'Remote: ', $p2->raddr, ':', $p2->rport, "\n";
                     my $wheel = $_[HEAP]->{udp_wheel} = POE::Wheel::UDP->new(
                         LocalAddr  => $p2->laddr,
                         LocalPort  => $p2->lport,
@@ -39,14 +39,22 @@ sub run {
                         InputEvent => 'udp_input',
                         Filter     => POE::Filter::Stream->new,
                     );
-                    $self->add_move_handler( sub { $p2->transmit($wheel); });
+                    $self->add_move_handler(
+                        sub { $p2->transmit($wheel) if $_transmit{$ref}; } );
+                    $self->add_event_handler(
+                        sub {
+                            my $key
+                                = SDL::Events::get_key_name( $_[0]->key_sym );
+                            $_transmit{$ref} = 1
+                                if $_[0]->type == SDL_KEYDOWN && $key eq 't';
+                        }
+                    );
                 }
                 $_[KERNEL]->yield('run');
             },
             run       => sub { $self->_run(@_); },
             udp_input => sub {
                 my $input = $_[ARG0];
-                warn 'udp_input';
                 $p2->handle_remote( $_[HEAP]->{udp_wheel}, $input );
             },
         },
@@ -108,6 +116,7 @@ sub DESTROY {
     delete $_stop{$ref};
     delete $_t{$ref};
     delete $_current_time{$ref};
+    delete $_transmit{$ref};
 }
 
 1;
