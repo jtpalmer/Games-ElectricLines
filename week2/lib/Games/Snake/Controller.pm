@@ -14,7 +14,7 @@ my %_t;
 my %_current_time;
 
 sub run {
-    my ($self, $p2) = @_;
+    my ( $self, $p2 ) = @_;
 
     my $ref = refaddr $self;
     $_t{$ref}            = 0.0;
@@ -25,27 +25,28 @@ sub run {
     $self->add_event_handler( sub { $self->stop() if $_[0]->type == SDL_QUIT }
     );
 
-    my $wheel;
-    if (defined $p2) {
-        $wheel = POE::Wheel::UDP->new(
-                LocalAddr  => $p2->laddr,
-                LocalPort  => $p2->lport,
-                PeerAddr   => $p2->raddr,
-                PeerPort   => $p2->rport,
-                InputEvent => 'udp_input',
-                Filter     => POE::Filter::Stream->new,
-        );
-    }
-
     POE::Session->create(
         inline_states => {
             _start => sub {
-                $_[HEAP]->{udp_wheel} = $wheel if defined $wheel;
+                if ( defined $p2 ) {
+                    warn 'Local: ', $p2->laddr, ':', $p2->lport, "\n";
+                    warn 'Remote: ', $p2->raddr, ':', $p2->rport, "\n";
+                    my $wheel = $_[HEAP]->{udp_wheel} = POE::Wheel::UDP->new(
+                        LocalAddr  => $p2->laddr,
+                        LocalPort  => $p2->lport,
+                        PeerAddr   => $p2->raddr,
+                        PeerPort   => $p2->rport,
+                        InputEvent => 'udp_input',
+                        Filter     => POE::Filter::Stream->new,
+                    );
+                    $self->add_move_handler( sub { $p2->transmit($wheel); });
+                }
                 $_[KERNEL]->yield('run');
             },
-            run    => sub { $self->_run(@_); },
+            run       => sub { $self->_run(@_); },
             udp_input => sub {
                 my $input = $_[ARG0];
+                warn 'udp_input';
                 $p2->handle_remote( $_[HEAP]->{udp_wheel}, $input );
             },
         },
@@ -86,7 +87,14 @@ sub _run {
     # TODO: delay
     SDL::delay(20);
 
-    $_[KERNEL]->yield('run') unless $_stop{$ref};
+    if ( $_stop{$ref} ) {
+        delete $_[HEAP]->{udp_wheel};
+        exit;
+        return;
+    }
+    else {
+        $_[KERNEL]->yield('run');
+    }
 }
 
 sub stop {

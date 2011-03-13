@@ -1,5 +1,6 @@
 package Games::Snake::RemotePlayer;
 use Mouse;
+use JSON qw( to_json from_json );
 
 extends 'Games::Snake::Player';
 
@@ -38,12 +39,12 @@ has game => (
 sub _serialize {
     my $self = shift;
     my $p    = $self->game->player;
-    return $p->segments;
+    return [to_json($p->segments)];
 }
 
 sub _deserialize {
     my ( $self, $input ) = @_;
-    my $segments = $input->{payload};
+    my $segments = from_json($input->{payload}[0]);
     my $level    = $self->game->level;
     @$segments = map { [ $level->w - $_->[0], $_->[1] ] } @$segments;
     return { segments => $segments };
@@ -55,7 +56,15 @@ sub handle_remote {
     my $data = $self->_deserialize($input);
     $self->segments( $data->{segments} );
 
+    $self->transmit($wheel);
+
+    return;
+}
+
+sub transmit {
+    my ( $self, $wheel ) = @_;
     $wheel->put( { payload => $self->_serialize } );
+    return;
 }
 
 no Mouse;
