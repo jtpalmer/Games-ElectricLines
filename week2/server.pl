@@ -77,7 +77,7 @@ sub respond {
     #connect( $sock, $sockaddr )
     #or die("connect error: $!");
 
-    send( $sock, 42, 0, $sockaddr );
+    send( $sock, 'Test', 0, $sockaddr );
 }
 
 sub sock2 {
