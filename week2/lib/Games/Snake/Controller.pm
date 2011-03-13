@@ -56,6 +56,9 @@ sub run {
                                 port    => $p2->sport,
                             }
                         );
+                    } else {
+                        $_setup{$ref}    = 1;
+                        $_transmit{$ref} = 1;
                     }
                 }
                 $_[KERNEL]->yield('run');
