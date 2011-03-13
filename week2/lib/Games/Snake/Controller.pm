@@ -49,12 +49,14 @@ sub run {
                                 if $_[0]->type == SDL_KEYDOWN && $key eq 't';
                         }
                     );
-                    $wheel->put(
-                        {   payload => ['setup'],
-                            addr    => $p2->saddr,
-                            port    => $p2->sport,
-                        }
-                    );
+                    if ( !$p2->raddr ) {
+                        $wheel->put(
+                            {   payload => ['setup'],
+                                addr    => $p2->saddr,
+                                port    => $p2->sport,
+                            }
+                        );
+                    }
                 }
                 $_[KERNEL]->yield('run');
             },

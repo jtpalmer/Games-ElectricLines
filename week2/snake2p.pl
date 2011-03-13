@@ -18,8 +18,8 @@ my $sport = 62174;
 my $result = GetOptions(
     'laddr=s' => \$laddr,
     'lport=i' => \$lport,
-    'raddr=s' => \$laddr,
-    'rport=i' => \$lport,
+    'raddr=s' => \$raddr,
+    'rport=i' => \$rport,
     'saddr=s' => \$saddr,
     'sport=i' => \$sport,
 );
@@ -34,6 +34,11 @@ my $p2 = Games::Snake::RemotePlayer->new(
     saddr => $saddr,
     sport => $sport,
 );
+
+if ($raddr) {
+    $p2->raddr($raddr);
+    $p2->rport($rport);
+}
 
 $game->player2($p2);
 $game->run($p2);
