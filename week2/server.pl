@@ -9,16 +9,21 @@ use Getopt::Long;
 
 sub main {
     my $addr;
+    my $addr2;
     my $port = 62174;
 
     my $result = GetOptions(
-        'addr=s' => \$addr,
-        'port=i' => \$port,
+        'addr=s'  => \$addr,
+        'addr2=s' => \$addr2,
+        'port=i'  => \$port,
     );
+
+    my $sock2 = sock2( $addr2, $port );
 
     my $proto = getprotobyname("udp");
 
-    socket( my $sock, PF_INET, SOCK_DGRAM, $proto )
+    my $sock;
+    socket( $sock, PF_INET, SOCK_DGRAM, $proto )
         or die("socket() failure: $!");
 
     fcntl( $sock, F_SETFL, O_NONBLOCK | O_RDWR )
@@ -53,7 +58,8 @@ sub main {
 
                     my $ip = join( '.', unpack( 'CCCC', $addr ) );
                     say "$ip:$port";
-                    respond( $sock, $ip, $port );
+                    say $input;
+                    respond( $sock2, $ip, $port );
                 }
             }
         }
@@ -72,6 +78,33 @@ sub respond {
     #or die("connect error: $!");
 
     send( $sock, 42, 0, $sockaddr );
+}
+
+sub sock2 {
+    my ( $addr, $port ) = @_;
+
+    my $proto = getprotobyname("udp");
+
+    my $sock;
+    socket( $sock, PF_INET, SOCK_DGRAM, $proto )
+        or die("socket() failure: $!");
+
+    fcntl( $sock, F_SETFL, O_NONBLOCK | O_RDWR )
+        or die("fcntl problem: $!");
+
+    setsockopt( $sock, SOL_SOCKET, SO_REUSEADDR, 1 )
+        or die("setsockopt SO_REUSEADDR failed: $!");
+
+    {
+        my $addr = inet_aton($addr)
+            or die("inet_aton problem: $!");
+        my $sockaddr = sockaddr_in( $port, $addr )
+            or die("sockaddr_in problem: $!");
+        bind( $sock, $sockaddr )
+            or die("bind error: $!");
+    }
+
+    return $sock;
 }
 
 main(@ARGV);
