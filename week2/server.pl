@@ -8,8 +8,6 @@ use POE::Wheel::UDP;
 use POE::Filter::Stream;
 use Getopt::Long;
 
-my $QUEUE = {};
-
 sub main {
     my $addr;
     my $port = 62174;
@@ -18,6 +16,8 @@ sub main {
         'addr=s' => \$addr,
         'port=i' => \$port,
     );
+
+    my $queued = {};
 
     POE::Session->create(
         inline_states => {
@@ -33,11 +33,11 @@ sub main {
                 my $input = $_[ARG0];
                 say $input->{addr}, ':', $input->{port};
                 return unless $input->{payload}[0] eq 'setup';
-                if (%$QUEUE) {
+                if (%$queued) {
                     say 'putting';
                     $_[HEAP]->{wheel}->put(
                         {   payload =>
-                                [ join( ':', @$QUEUE{qw( addr port )} ) ],
+                                [ join( ':', @$queued{qw( addr port )} ) ],
                             addr => $input->{addr},
                             port => $input->{port},
                         }
@@ -45,14 +45,14 @@ sub main {
                     $_[HEAP]->{wheel}->put(
                         {   payload =>
                                 [ join( ':', @$input{qw( addr port )} ) ],
-                            %$QUEUE
+                            %$queued
                         }
                     );
 
-                    $QUEUE = {};
+                    $queued = {};
                 }
                 else {
-                    $QUEUE = {
+                    $queued = {
                         addr => $input->{addr},
                         port => $input->{port},
                     };
