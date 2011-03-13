@@ -14,7 +14,7 @@ my $sin   = sockaddr_in( $port, $iaddr );
 
 bind( $sock, $sin );
 
-send( $sock, 42, 0, $sin );
+send( $sock, 'setup', 0, $sin );
 
 my $input;
 my $a = recv( $sock, $input, 1500, 0 );
