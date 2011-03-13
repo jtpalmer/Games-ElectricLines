@@ -56,8 +56,6 @@ sub handle_remote {
     my $data = $self->_deserialize($input);
     $self->segments( $data->{segments} );
 
-    $self->transmit($wheel);
-
     return;
 }
 
