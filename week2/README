@@ -4,6 +4,14 @@ NAME
 SYNOPSIS
     perl snake.pl
 
+    Or for 2-player mode over the internet:
+
+    perl snake2p.pl
+
 PREREQUISITES
     * SDL
     * Mouse
+    * POE
+    * POE::Wheel::UDP;
+    * JSON
+    * Net::Address::IP::Local
