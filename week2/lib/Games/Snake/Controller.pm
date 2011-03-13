@@ -134,6 +134,7 @@ sub _setup {
 
     $_setup{$ref}    = 1;
     $_transmit{$ref} = 1;
+    $player->transmit( $_[HEAP]->{wheel} );
 
     $_[KERNEL]->yield('run');
 }
