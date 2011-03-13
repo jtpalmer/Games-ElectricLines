@@ -134,7 +134,7 @@ sub _setup {
 
     $_setup{$ref}    = 1;
     $_transmit{$ref} = 1;
-    $player->transmit( $_[HEAP]->{wheel} );
+    $player->transmit( $_[HEAP]->{udp_wheel} );
 
     $_[KERNEL]->yield('run');
 }
