@@ -13,6 +13,7 @@ my %_stop;
 my %_t;
 my %_current_time;
 my %_transmit;
+my %_setup;
 
 sub run {
     my ( $self, $p2 ) = @_;
@@ -22,6 +23,7 @@ sub run {
     $_stop{$ref}         = 0;
     $_current_time{$ref} = Time::HiRes::time;
     $_transmit{$ref}     = 0;
+    $_setup{$ref}        = 0;
 
     # TODO: eoq
     $self->add_event_handler( sub { $self->stop() if $_[0]->type == SDL_QUIT }
@@ -34,8 +36,6 @@ sub run {
                     my $wheel = $_[HEAP]->{udp_wheel} = POE::Wheel::UDP->new(
                         LocalAddr  => $p2->laddr,
                         LocalPort  => $p2->lport,
-                        PeerAddr   => $p2->raddr,
-                        PeerPort   => $p2->rport,
                         InputEvent => 'udp_input',
                         Filter     => POE::Filter::Stream->new,
                     );
@@ -49,13 +49,26 @@ sub run {
                                 if $_[0]->type == SDL_KEYDOWN && $key eq 't';
                         }
                     );
+                    $wheel->put(
+                        {   payload => ['setup'],
+                            addr    => '69.164.218.48',
+                            port    => 62174,
+                        }
+                    );
                 }
-                $_[KERNEL]->yield('run');
+                else {
+                    $_[KERNEL]->yield('run');
+                }
             },
             run       => sub { $self->_run(@_); },
             udp_input => sub {
                 my $input = $_[ARG0];
-                $p2->handle_remote( $_[HEAP]->{udp_wheel}, $input );
+                if ( $_setup{$ref} ) {
+                    $p2->handle_remote( $_[HEAP]->{udp_wheel}, $input );
+                }
+                else {
+                    $self->_setup( $p2, $input, @_ );
+                }
             },
         },
     );
@@ -110,6 +123,24 @@ sub stop {
     $_stop{ refaddr $self} = 1;
 }
 
+sub _setup {
+    my $self   = shift;
+    my $player = shift;
+    my $input  = shift;
+
+    my $ref = refaddr $self;
+
+    my ( $addr, $port ) = split /:/, $input->{payload}[0];
+    print "$addr $port\n";
+    $player->raddr($addr);
+    $player->rport($port);
+
+    $_setup{$ref}    = 1;
+    $_transmit{$ref} = 1;
+
+    $_[KERNEL]->yield('run');
+}
+
 sub DESTROY {
     my $self = shift;
     my $ref  = refaddr $self;
@@ -117,6 +148,7 @@ sub DESTROY {
     delete $_t{$ref};
     delete $_current_time{$ref};
     delete $_transmit{$ref};
+    delete $_setup{$ref};
 }
 
 1;
