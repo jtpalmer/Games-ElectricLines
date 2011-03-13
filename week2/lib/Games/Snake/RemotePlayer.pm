@@ -7,6 +7,7 @@ extends 'Games::Snake::Player';
 has '+size'  => ( default => 1 );
 has '+color' => ( default => 0xCCCCCCFF );
 
+# Local player
 has laddr => (
     is       => 'ro',
     isa      => 'Str',
@@ -19,12 +20,24 @@ has lport => (
     required => 1,
 );
 
+# Remote player
 has raddr => (
     is  => 'rw',
     isa => 'Str',
 );
 
 has rport => (
+    is  => 'rw',
+    isa => 'Int',
+);
+
+# Server
+has saddr => (
+    is  => 'rw',
+    isa => 'Str',
+);
+
+has sport => (
     is  => 'rw',
     isa => 'Int',
 );

@@ -51,8 +51,8 @@ sub run {
                     );
                     $wheel->put(
                         {   payload => ['setup'],
-                            addr    => '69.164.218.48',
-                            port    => 62174,
+                            addr    => $p2->saddr,
+                            port    => $p2->sport,
                         }
                     );
                 }
