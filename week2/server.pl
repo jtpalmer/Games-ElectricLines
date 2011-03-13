@@ -36,18 +36,20 @@ sub main {
                 if (%$QUEUE) {
                     say 'putting';
                     $_[HEAP]->{wheel}->put(
-                        {   payload => [ @$QUEUE{qw( addr port )} ],
-                            addr    => $input->{addr},
-                            port    => $input->{port},
+                        {   payload =>
+                                [ join( ':', @$QUEUE{qw( addr port )} ) ],
+                            addr => $input->{addr},
+                            port => $input->{port},
                         }
                     );
                     $_[HEAP]->{wheel}->put(
-                        {   payload => [ @$input{qw( addr port )} ],
+                        {   payload =>
+                                [ join( ':', @$input{qw( addr port )} ) ],
                             %$QUEUE
                         }
                     );
 
-                    undef $QUEUE;
+                    $QUEUE = {};
                 }
                 else {
                     $QUEUE = {
