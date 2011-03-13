@@ -34,6 +34,12 @@ has player => (
     builder => '_build_player',
 );
 
+has player2 => (
+    is      => 'ro',
+    isa     => 'Games::Snake::RemotePlayer',
+    default => undef,
+);
+
 has level => (
     is      => 'ro',
     isa     => 'Games::Snake::Level',
@@ -90,18 +96,23 @@ sub _build_apple {
 
     my $level  = $self->level;
     my $player = $self->player;
+    my $p2     = $self->player2;
 
     my $coord;
 
     do {
-        $coord = [ int( rand( $level->w ) ), int( rand( $level->h ) ) ];
-    } while ( $player->is_segment($coord) || $level->is_wall($coord) );
+        do {
+            $coord = [ int( rand( $level->w ) ), int( rand( $level->h ) ) ];
+        } while ( $player->is_segment($coord) || $level->is_wall($coord) );
+    } while ( defined $p2 && $p2->is_segment($coord) );
 
     return $coord;
 }
 
 sub BUILD {
     my ($self) = @_;
+
+    $self->player2->game($self) if defined $self->player2;
 
     my $c = $self->c;
     $c->add_event_handler( sub { $self->handle_event(@_) } );
@@ -159,6 +170,7 @@ sub handle_show {
         0xC20006FF );
 
     $self->player->draw($app);
+    $self->player2->draw($app) if defined $self->player2;
     $self->level->draw($app);
 
     if ( !$self->player->alive ) {

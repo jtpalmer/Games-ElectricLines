@@ -4,6 +4,8 @@ use warnings;
 use parent qw( SDLx::Controller );
 use Scalar::Util qw( refaddr );
 use POE;
+use POE::Wheel::UDP;
+use POE::Filter::Stream;
 use SDL::Event;
 use SDL::Events;
 
@@ -12,7 +14,7 @@ my %_t;
 my %_current_time;
 
 sub run {
-    my ($self) = @_;
+    my ($self, $p2) = @_;
 
     my $ref = refaddr $self;
     $_t{$ref}            = 0.0;
@@ -23,10 +25,29 @@ sub run {
     $self->add_event_handler( sub { $self->stop() if $_[0]->type == SDL_QUIT }
     );
 
+    my $wheel;
+    if (defined $p2) {
+        $wheel = POE::Wheel::UDP->new(
+                LocalAddr  => $p2->laddr,
+                LocalPort  => $p2->lport,
+                PeerAddr   => $p2->raddr,
+                PeerPort   => $p2->rport,
+                InputEvent => 'udp_input',
+                Filter     => POE::Filter::Stream->new,
+        );
+    }
+
     POE::Session->create(
         inline_states => {
-            _start => sub { $_[KERNEL]->yield('run'); },
+            _start => sub {
+                $_[HEAP]->{udp_wheel} = $wheel if defined $wheel;
+                $_[KERNEL]->yield('run');
+            },
             run    => sub { $self->_run(@_); },
+            udp_input => sub {
+                my $input = $_[ARG0];
+                $p2->handle_remote( $_[HEAP]->{udp_wheel}, $input );
+            },
         },
     );
 
