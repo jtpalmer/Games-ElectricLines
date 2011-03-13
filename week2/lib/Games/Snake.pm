@@ -141,10 +141,14 @@ sub handle_move {
 
     my $level  = $self->level;
     my $player = $self->player;
+    my $p2     = $self->player2;
 
     $player->move($t);
 
     if ( $player->hit_self() || $level->is_wall( $player->head ) ) {
+        $player->alive(0);
+    }
+    elsif ( defined $p2 && $p2->is_segment( $player->head ) ) {
         $player->alive(0);
     }
     elsif ($player->head->[0] == $self->apple->[0]
