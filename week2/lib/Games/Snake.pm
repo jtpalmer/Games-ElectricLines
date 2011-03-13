@@ -3,14 +3,21 @@ use Mouse;
 use SDL;
 use SDL::Event;
 use SDLx::App;
+use Games::Snake::Controller;
 use Games::Snake::Player;
 use Games::Snake::Level;
 
 has app => (
     is      => 'ro',
     isa     => 'SDLx::App',
-    lazy    => 1,
     builder => '_build_app',
+);
+
+has c => (
+    is      => 'ro',
+    isa     => 'Games::Snake::Controller',
+    lazy    => 1,
+    builder => '_build_controller',
     handles => [qw( run )],
 );
 
@@ -46,6 +53,11 @@ sub _build_app {
         title => 'Snake',
         w     => 800,
         h     => 600,
+    );
+}
+
+sub _build_controller {
+    return Games::Snake::Controller->new(
         eoq   => 1,
         dt    => 0.05,
         delay => 20,
@@ -91,14 +103,14 @@ sub _build_apple {
 sub BUILD {
     my ($self) = @_;
 
-    my $app = $self->app;
-    $app->add_event_handler( sub { $self->handle_event(@_) } );
-    $app->add_move_handler( sub  { $self->handle_move(@_) } );
-    $app->add_show_handler( sub  { $self->handle_show(@_) } );
+    my $c = $self->c;
+    $c->add_event_handler( sub { $self->handle_event(@_) } );
+    $c->add_move_handler( sub  { $self->handle_move(@_) } );
+    $c->add_show_handler( sub  { $self->handle_show(@_) } );
 }
 
 sub handle_event {
-    my ( $self, $event, $app ) = @_;
+    my ( $self, $event, $c ) = @_;
 
     my $player = $self->player;
 
@@ -116,7 +128,7 @@ sub handle_event {
 }
 
 sub handle_move {
-    my ( $self, $step, $app, $t ) = @_;
+    my ( $self, $step, $c, $t ) = @_;
 
     my $level  = $self->level;
     my $player = $self->player;
@@ -136,8 +148,9 @@ sub handle_move {
 }
 
 sub handle_show {
-    my ( $self, $delta, $app ) = @_;
+    my ( $self, $delta, $c ) = @_;
 
+    my $app = $self->app;
     $app->draw_rect( [ 0, 0, $app->w, $app->h ], 0x000000FF );
 
     my $size = $self->size;
