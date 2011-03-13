@@ -5,7 +5,7 @@ use JSON qw( to_json from_json );
 extends 'Games::Snake::Player';
 
 has '+size'  => ( default => 1 );
-has '+color' => ( default => 0xCCCCCCFF );
+has '+color' => ( default => 0xE8E623FF );
 
 # Local player
 has laddr => (
