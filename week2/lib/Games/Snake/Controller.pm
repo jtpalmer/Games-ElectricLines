@@ -131,7 +131,6 @@ sub _setup {
     my $ref = refaddr $self;
 
     my ( $addr, $port ) = split /:/, $input->{payload}[0];
-    print "$addr $port\n";
     $player->raddr($addr);
     $player->rport($port);
 
