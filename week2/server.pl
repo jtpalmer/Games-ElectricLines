@@ -17,6 +17,8 @@ sub main {
         'port=i' => \$port,
     );
 
+    die "IP Address required\n" unless $addr;
+
     my $queued = {};
 
     POE::Session->create(
