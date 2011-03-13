@@ -56,9 +56,7 @@ sub run {
                         }
                     );
                 }
-                else {
-                    $_[KERNEL]->yield('run');
-                }
+                $_[KERNEL]->yield('run');
             },
             run       => sub { $self->_run(@_); },
             udp_input => sub {
