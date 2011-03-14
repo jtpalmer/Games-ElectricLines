@@ -66,8 +66,11 @@ sub handle_remote {
 
     my $data = eval { $self->_deserialize($input) };
     return if $@;
-    my $segments = $self->segments;
-    @$segments = @{ $data->{segments} };
+
+    @{ $self->segments } = @{ $data->{segments} };
+
+    # Update remote port, just in case it changed
+    $self->rport( $input->{port} );
 
     return;
 }
