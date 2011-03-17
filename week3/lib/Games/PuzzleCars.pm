@@ -41,10 +41,10 @@ sub _build_map {
     return Games::PuzzleCars::Map->new(
         w     => $self->app->w,
         h     => $self->app->h,
+        file  => File::Spec->catfile( $self->share_dir, 'map.txt' ),
         roads => {
             w       => 50,
             h       => 50,
-            file    => File::Spec->catfile( $self->share_dir, 'map.txt' ),
             image   => File::Spec->catfile( $self->share_dir, 'roads.bmp' ),
             mapping => [
                 [   [ [ 6, 0 ] ],

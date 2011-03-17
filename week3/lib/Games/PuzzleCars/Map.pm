@@ -27,32 +27,30 @@ around BUILDARGS => sub {
     );
 
     my $road_sprite = SDLx::Sprite->new( image => $args{roads}{image} );
-    open my $road_file, '<', $args{roads}{file};
-    my @roads = map { chomp; [ split //, $_ ] } <$road_file>;
+    open my $map_file, '<', $args{file};
+    my @map = map { chomp; [ split //, $_ ] } <$map_file>;
     my ( $x, $y );
-    foreach my $row_id ( 0 .. $#roads ) {
-        my @row = @{ $roads[$row_id] };
+    foreach my $row_id ( 0 .. $#map ) {
+        my @row = @{ $map[$row_id] };
         foreach my $col_id ( 0 .. $#row ) {
 
             my ( $prev_row, $next_row ) = ( $row_id - 1, $row_id + 1 );
             $prev_row = $row_id + 1 if $row_id == 0;
-            $next_row = $row_id - 1 if $row_id == $#roads;
-            my @vertical
-                = ( $roads[$prev_row][$col_id], $roads[$next_row][$col_id] );
+            $next_row = $row_id - 1 if $row_id == $#map;
+            my @v = ( $map[$prev_row][$col_id], $map[$next_row][$col_id] );
 
             my ( $prev_col, $next_col ) = ( $col_id - 1, $col_id + 1 );
             $prev_col = $col_id + 1 if $col_id == 0;
             $next_col = $col_id - 1 if $col_id == $#row;
-            my @horizontal
-                = ( $roads[$row_id][$prev_col], $roads[$row_id][$next_col] );
+            my @h = ( $map[$row_id][$prev_col], $map[$row_id][$next_col] );
 
             foreach my $y_offset ( 0, 1 ) {
                 foreach my $x_offset ( 0, 1 ) {
 
                     my $index = 0;
-                    if ( $roads[$row_id][$col_id] eq 'R' ) {
-                        $index += 1 if $vertical[$y_offset]   eq 'R';
-                        $index += 2 if $horizontal[$x_offset] eq 'R';
+                    if ( $map[$row_id][$col_id] eq 'R' ) {
+                        $index += 1 if $v[$y_offset] eq 'R';
+                        $index += 2 if $h[$x_offset] eq 'R';
                     }
                     else {
                         $index = 4;
