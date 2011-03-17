@@ -10,15 +10,35 @@ has background => (
     required => 1,
 );
 
-has roads => ( is => 'ro', );
+has roads => (
+    is       => 'ro',
+    isa      => 'ArrayRef[ArrayRef]',
+    required => 1,
+);
 
 has intersections => (
-    is  => 'ro',
-    isa => 'ArrayRef',
+    is       => 'ro',
+    isa      => 'ArrayRef',
+    default  => sub { [] },
+    required => 1,
+);
+
+has tile_w => (
+    is       => 'ro',
+    isa      => 'Int',
+    required => 1,
+);
+
+has tile_h => (
+    is       => 'ro',
+    isa      => 'Int',
+    required => 1,
 );
 
 around BUILDARGS => sub {
     my ( $orig, $class, %args ) = @_;
+
+    my ( @roads, @intersections );
 
     my $bg = SDLx::Surface->new(
         w     => $args{w},
@@ -47,8 +67,14 @@ around BUILDARGS => sub {
             foreach my $y_offset ( 0, 1 ) {
                 foreach my $x_offset ( 0, 1 ) {
 
+                    my $cell = $map[$row_id][$col_id];
+
                     my $index = 0;
-                    if ( $map[$row_id][$col_id] eq 'R' ) {
+                    if ( $cell eq 'R' ) {
+                        push @roads,         [ $col_id, $row_id ];
+                        push @intersections, [ $col_id, $row_id ]
+                            if 2 < grep { $_ eq 'R' } ( @h, @v );
+
                         $index += 1 if $v[$y_offset] eq 'R';
                         $index += 2 if $h[$x_offset] eq 'R';
                     }
@@ -79,7 +105,11 @@ around BUILDARGS => sub {
         }
     }
 
-    $args{background} = $bg;
+    $args{tile_w}        = $args{roads}{w} * 2;
+    $args{tile_h}        = $args{roads}{h} * 2;
+    $args{background}    = $bg;
+    $args{roads}         = \@roads;
+    $args{intersections} = \@intersections;
 
     return $class->$orig(%args);
 };
@@ -88,6 +118,15 @@ sub draw {
     my ( $self, $surface ) = @_;
 
     $self->background->blit($surface);
+    foreach my $i ( @{ $self->intersections } ) {
+        $surface->draw_rect(
+            [   ( $i->[0] + 0.5 ) * $self->tile_w - 5,
+                ( $i->[1] + 0.5 ) * $self->tile_h - 5,
+                10, 10
+            ],
+            0xFF0000FF
+        );
+    }
 }
 
 no Mouse;
