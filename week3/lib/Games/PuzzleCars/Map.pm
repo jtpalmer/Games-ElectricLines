@@ -32,53 +32,25 @@ around BUILDARGS => sub {
     my ( $x, $y );
     foreach my $row_id ( 0 .. $#roads ) {
         my @row = @{ $roads[$row_id] };
-        foreach my $column_id ( 0 .. $#row ) {
+        foreach my $col_id ( 0 .. $#row ) {
 
-            my ( @vertical, @horizontal );
+            my ( $prev_row, $next_row ) = ( $row_id - 1, $row_id + 1 );
+            $prev_row = $row_id + 1 if $row_id == 0;
+            $next_row = $row_id - 1 if $row_id == $#roads;
+            my @vertical
+                = ( $roads[$prev_row][$col_id], $roads[$next_row][$col_id] );
 
-            if ( $row_id == 0 ) {
-                @vertical = (
-                    $roads[ $row_id + 1 ][$column_id],
-                    $roads[ $row_id + 1 ][$column_id]
-                );
-            }
-            elsif ( $row_id == $#roads ) {
-                @vertical = (
-                    $roads[ $row_id - 1 ][$column_id],
-                    $roads[ $row_id - 1 ][$column_id]
-                );
-            }
-            else {
-                @vertical = (
-                    $roads[ $row_id - 1 ][$column_id],
-                    $roads[ $row_id + 1 ][$column_id]
-                );
-            }
-
-            if ( $column_id == 0 ) {
-                @horizontal = (
-                    $roads[$row_id][ $column_id + 1 ],
-                    $roads[$row_id][ $column_id + 1 ]
-                );
-            }
-            elsif ( $column_id == $#row ) {
-                @horizontal = (
-                    $roads[$row_id][ $column_id - 1 ],
-                    $roads[$row_id][ $column_id - 1 ]
-                );
-            }
-            else {
-                @horizontal = (
-                    $roads[$row_id][ $column_id - 1 ],
-                    $roads[$row_id][ $column_id + 1 ]
-                );
-            }
+            my ( $prev_col, $next_col ) = ( $col_id - 1, $col_id + 1 );
+            $prev_col = $col_id + 1 if $col_id == 0;
+            $next_col = $col_id - 1 if $col_id == $#row;
+            my @horizontal
+                = ( $roads[$row_id][$prev_col], $roads[$row_id][$next_col] );
 
             foreach my $y_offset ( 0, 1 ) {
                 foreach my $x_offset ( 0, 1 ) {
 
                     my $index = 0;
-                    if ( $roads[$row_id][$column_id] eq 'R' ) {
+                    if ( $roads[$row_id][$col_id] eq 'R' ) {
                         $index += 1 if $vertical[$y_offset]   eq 'R';
                         $index += 2 if $horizontal[$x_offset] eq 'R';
                     }
@@ -101,7 +73,7 @@ around BUILDARGS => sub {
                     );
                     $road_sprite->draw_xy(
                         $bg,
-                        ( 2 * $column_id + $x_offset ) * $args{roads}{w},
+                        ( 2 * $col_id + $x_offset ) * $args{roads}{w},
                         ( 2 * $row_id + $y_offset ) * $args{roads}{h}
                     );
                 }
