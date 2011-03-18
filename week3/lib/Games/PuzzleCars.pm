@@ -20,6 +20,12 @@ has app => (
     handles => [qw( run )],
 );
 
+has difficulty => (
+    is       => 'ro',
+    isa      => 'Str',
+    required => 1,
+);
+
 has map => (
     is      => 'rw',
     isa     => 'Games::PuzzleCars::Map',
@@ -39,9 +45,11 @@ sub _build_app {
 sub _build_map {
     my $self = shift;
     return Games::PuzzleCars::Map->new(
-        w     => $self->app->w,
-        h     => $self->app->h,
-        file  => File::Spec->catfile( $self->share_dir, 'map.txt' ),
+        w    => $self->app->w,
+        h    => $self->app->h,
+        file => File::Spec->catfile(
+            $self->share_dir, 'maps', $self->{difficulty} . '.txt'
+        ),
         roads => {
             w       => 50,
             h       => 50,
