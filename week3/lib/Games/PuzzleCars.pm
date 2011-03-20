@@ -73,6 +73,12 @@ sub _build_map {
         file => File::Spec->catfile(
             $self->share_dir, 'maps', $self->{difficulty} . '.txt'
         ),
+        intersection => {
+            w     => 40,
+            h     => 40,
+            image => File::Spec->catfile( $self->share_dir, 'arrows.bmp' ),
+
+        },
         roads => {
             w       => 50,
             h       => 50,
@@ -145,6 +151,7 @@ sub BUILD {
 
 sub handle_event {
     my ( $self, $event, $app ) = @_;
+    $self->map->handle_event($event);
 }
 
 sub handle_move {

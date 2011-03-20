@@ -1,8 +1,11 @@
 package Games::PuzzleCars::Map;
 use Mouse;
 use SDL::Rect;
+use SDL::Event;
+use SDL::Events;
 use SDLx::Surface;
 use SDLx::Sprite;
+use Games::PuzzleCars::Intersection;
 
 has background => (
     is       => 'ro',
@@ -46,6 +49,9 @@ around BUILDARGS => sub {
         color => 0x000000FF,
     );
 
+    my $arrow = SDLx::Sprite->new( image => $args{intersection}{image} );
+    $arrow->alpha_key(0x000000);
+
     my $road_sprite = SDLx::Sprite->new( image => $args{roads}{image} );
     open my $map_file, '<', $args{file};
     my @map = map { chomp; [ split //, $_ ] } <$map_file>;
@@ -71,9 +77,16 @@ around BUILDARGS => sub {
 
                     my $index = 0;
                     if ( $cell eq 'R' ) {
-                        push @roads,         [ $col_id, $row_id ];
-                        push @intersections, [ $col_id, $row_id ]
-                            if 2 < grep { $_ eq 'R' } ( @h, @v );
+                        push @roads, [ $col_id, $row_id ];
+                        if ( 2 < grep { $_ eq 'R' } ( @h, @v ) ) {
+                            push @intersections,
+                                Games::PuzzleCars::Intersection->new(
+                                x => ( $col_id + 0.5 ) * $args{roads}{w} * 2,
+                                y => ( $row_id + 0.5 ) * $args{roads}{h} * 2,
+                                arrow => $arrow,
+                                %{ $args{intersection} },
+                                );
+                        }
 
                         $index += 1 if $v[$y_offset] eq 'R';
                         $index += 2 if $h[$x_offset] eq 'R';
@@ -114,19 +127,19 @@ around BUILDARGS => sub {
     return $class->$orig(%args);
 };
 
+sub handle_event {
+    my ( $self, $event ) = @_;
+
+    return unless $event->type == SDL_MOUSEBUTTONDOWN;
+
+    $_->handle_event($event) foreach @{ $self->intersections };
+}
+
 sub draw {
     my ( $self, $surface ) = @_;
 
     $self->background->blit($surface);
-    foreach my $i ( @{ $self->intersections } ) {
-        $surface->draw_rect(
-            [   ( $i->[0] + 0.5 ) * $self->tile_w - 5,
-                ( $i->[1] + 0.5 ) * $self->tile_h - 5,
-                10, 10
-            ],
-            0xFF0000FF
-        );
-    }
+    $_->draw($surface) foreach @{ $self->intersections };
 }
 
 no Mouse;
