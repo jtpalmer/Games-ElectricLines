@@ -130,17 +130,7 @@ sub _build_surfaces {
 sub BUILD {
     my ($self) = @_;
 
-    push @{ $self->cars },
-        Games::PuzzleCars::Car->new(
-        rect    => SDL::Rect->new( 0, 0, 34, 34 ),
-        surface => $self->_surfaces->{'red_car'},
-        map     => $self->map,
-        x       => 0,
-        y       => 162,
-        rot     => 0,
-        v_x     => 1,
-        v_y     => 0,
-        );
+    $self->_add_car();
 
     my $app = $self->app;
     $app->add_event_handler( sub { $self->handle_event(@_) } );
@@ -164,6 +154,25 @@ sub handle_show {
     $self->map->draw($app);
     $_->draw($app) foreach @{ $self->cars };
     $app->update();
+}
+
+sub _add_car {
+    my ($self) = @_;
+
+    my $colors = $self->_car_colors;
+    my $color  = $colors->[ int rand @$colors ];
+    my $car    = Games::PuzzleCars::Car->new(
+        rect    => SDL::Rect->new( 0, 0, 34, 34 ),
+        surface => $self->_surfaces->{ $color . '_car' },
+        map     => $self->map,
+        x       => 0,
+        y       => 162,
+        rot     => 0,
+        v_x     => 1,
+        v_y     => 0,
+    );
+
+    push @{ $self->cars }, $car;
 }
 
 no Mouse;
