@@ -1,0 +1,13 @@
+NAME
+    Games::PuzzleCars - Puzzle game involving cars
+
+SYNOPSIS
+        perl puzzlecars.pl
+
+    Options:
+        --easy    Use the easy map
+        --hard    Use the hard map
+
+PREREQUISIES
+    * SDL
+    * Mouse
