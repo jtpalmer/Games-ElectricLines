@@ -146,7 +146,7 @@ sub BUILD {
     my $app = $self->app;
     $app->add_event_handler( sub { $self->handle_event(@_) } );
     $app->add_move_handler( sub  { $self->handle_move(@_) } );
-    $app->add_show_handler( sub  { $self->handle_show(@_); } );
+    $app->add_show_handler( sub  { $self->handle_show(@_) } );
 }
 
 sub handle_event {
