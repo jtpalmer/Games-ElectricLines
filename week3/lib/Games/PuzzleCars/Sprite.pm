@@ -37,7 +37,7 @@ around BUILDARGS => sub {
         rect    => $args{rect},
         surface => $args{surface},
     );
-    $animated->alpha_key(0xFFFFFFFF);
+    $animated->alpha_key(0x1D1D1D);
 
     return $class->$orig( _sprite => $animated );
 };

@@ -10,7 +10,7 @@ sub main {
     die "Need an input file\n"  unless $i_file;
     die "Need an output file\n" unless $o_file;
 
-    $bg_color //= 'white';
+    $bg_color //= '#1D1D1D';
 
     $num //= 360 / 5;
     my $deg = 360 / $num;

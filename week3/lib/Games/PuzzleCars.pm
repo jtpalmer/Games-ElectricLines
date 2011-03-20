@@ -44,7 +44,7 @@ has cars => (
 has _car_colors => (
     is      => 'ro',
     isa     => 'ArrayRef[Str]',
-    default => sub { [qw( red )] },
+    default => sub { [qw( red green yellow )] },
 );
 
 has _surfaces => (
@@ -135,7 +135,6 @@ sub BUILD {
         rect    => SDL::Rect->new( 0, 0, 34, 34 ),
         surface => $self->_surfaces->{'red_car'},
         map     => $self->map,
-        color   => 'red',
         x       => 0,
         y       => 162,
         rot     => 0,
