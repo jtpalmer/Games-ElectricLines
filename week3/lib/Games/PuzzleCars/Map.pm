@@ -129,7 +129,7 @@ sub _build_roads {
                         x          => $col_id,
                         y          => $row_id,
                         arrow      => $arrow,
-                        directions => [ keys %directions ],
+                        directions => \%directions,
                         );
                 }
                 else {
@@ -137,7 +137,7 @@ sub _build_roads {
                         map        => $self,
                         x          => $col_id,
                         y          => $row_id,
-                        directions => [ keys %directions ],
+                        directions => \%directions,
                     );
                 }
             }
@@ -150,8 +150,10 @@ sub _build_roads {
 sub _build_intersections {
     my ($self) = @_;
 
-    return [ grep { $_ && $_->isa('Games::PuzzleCars::Intersection') }
-            map {@$_} @{ $self->roads } ];
+    return [
+        grep { $_ && $_->isa('Games::PuzzleCars::Intersection') }
+        map {@$_} @{ $self->roads }
+    ];
 }
 
 sub _build_borders {
@@ -161,9 +163,9 @@ sub _build_borders {
         grep {
             $_
                 && ( $_->x == 0
-                || $_->x == $self->w
+                || $_->x == $self->w - 1
                 || $_->y == 0
-                || $_->y == $self->h )
+                || $_->y == $self->h - 1 )
             } map {@$_} @{ $self->roads }
     ];
 }

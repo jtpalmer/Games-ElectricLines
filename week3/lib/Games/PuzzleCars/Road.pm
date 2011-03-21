@@ -4,7 +4,7 @@ use Mouse;
 has map => (
     is       => 'ro',
     isa      => 'Games::PuzzleCars::Map',
-    #required => 1,
+    required => 1,
 );
 
 has [qw( x y )] => (
@@ -13,11 +13,10 @@ has [qw( x y )] => (
     required => 1,
 );
 
-
 has directions => (
     is       => 'ro',
-    isa      => 'ArrayRef',
-    #required => 1,
+    isa      => 'HashRef',
+    required => 1,
 );
 
 no Mouse;

@@ -159,17 +159,61 @@ sub handle_show {
 sub _add_car {
     my ($self) = @_;
 
+    my $left  = 37;
+    my $right = 63;
+
+    my $map     = $self->map;
+    my $borders = $map->borders;
+    my $border  = $borders->[ int rand @$borders ];
+
     my $colors = $self->_car_colors;
     my $color  = $colors->[ int rand @$colors ];
-    my $car    = Games::PuzzleCars::Car->new(
+
+    my ( $x, $y, $rot, $v_x, $v_y );
+    if ( $border->x == 0 && defined $border->directions->{WEST} ) {
+        $x   = 0;
+        $y   = $border->y * $map->tile_h + $right;
+        $rot = 0;
+        $v_x = 1;
+        $v_y = 0;
+    }
+    elsif ( $border->y == 0 && defined $border->directions->{NORTH} ) {
+        $x   = $border->x * $map->tile_w + $left;
+        $y   = 0;
+        $rot = 270;
+        $v_x = 0;
+        $v_y = 1;
+    }
+    elsif ( $border->x == $map->w - 1 && defined $border->directions->{EAST} )
+    {
+        $x   = $map->w * $map->tile_w;
+        $y   = $border->y * $map->tile_h + $left;
+        $rot = 180;
+        $v_x = -1;
+        $v_y = 0;
+    }
+    elsif ( $border->y == $map->h - 1
+        && defined $border->directions->{SOUTH} )
+    {
+        $x   = $border->x * $map->tile_w + $right;
+        $y   = $map->h * $map->tile_h;
+        $rot = 90;
+        $v_x = 0;
+        $v_y = -1;
+    }
+
+    die unless defined $x;
+
+    my $car = Games::PuzzleCars::Car->new(
         rect    => SDL::Rect->new( 0, 0, 34, 34 ),
         surface => $self->_surfaces->{ $color . '_car' },
         map     => $self->map,
-        x       => 0,
-        y       => 162,
-        rot     => 0,
-        v_x     => 1,
-        v_y     => 0,
+        road    => $border,
+        x       => $x,
+        y       => $y,
+        rot     => $rot,
+        v_x     => $v_x,
+        v_y     => $v_y,
     );
 
     push @{ $self->cars }, $car;
