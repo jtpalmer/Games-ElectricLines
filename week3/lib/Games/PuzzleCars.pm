@@ -169,51 +169,57 @@ sub _add_car {
     my $colors = $self->_car_colors;
     my $color  = $colors->[ int rand @$colors ];
 
-    my ( $x, $y, $rot, $v_x, $v_y );
+    my ( $x, $y, $rot, $v_x, $v_y, $direction );
     if ( $border->x == 0 && defined $border->directions->{WEST} ) {
-        $x   = 0;
-        $y   = $border->y * $map->tile_h + $right;
-        $rot = 0;
-        $v_x = 1;
-        $v_y = 0;
+        $x         = 0;
+        $y         = $border->y * $map->tile_h + $right;
+        $rot       = 0;
+        $v_x       = 1;
+        $v_y       = 0;
+        $direction = 'EAST';
     }
     elsif ( $border->y == 0 && defined $border->directions->{NORTH} ) {
-        $x   = $border->x * $map->tile_w + $left;
-        $y   = 0;
-        $rot = 270;
-        $v_x = 0;
-        $v_y = 1;
+        $x         = $border->x * $map->tile_w + $left;
+        $y         = 0;
+        $rot       = 270;
+        $v_x       = 0;
+        $v_y       = 1;
+        $direction = 'SOUTH';
     }
     elsif ( $border->x == $map->w - 1 && defined $border->directions->{EAST} )
     {
-        $x   = $map->w * $map->tile_w;
-        $y   = $border->y * $map->tile_h + $left;
-        $rot = 180;
-        $v_x = -1;
-        $v_y = 0;
+        $x         = $map->w * $map->tile_w;
+        $y         = $border->y * $map->tile_h + $left;
+        $rot       = 180;
+        $v_x       = -1;
+        $v_y       = 0;
+        $direction = 'WEST';
     }
     elsif ( $border->y == $map->h - 1
         && defined $border->directions->{SOUTH} )
     {
-        $x   = $border->x * $map->tile_w + $right;
-        $y   = $map->h * $map->tile_h;
-        $rot = 90;
-        $v_x = 0;
-        $v_y = -1;
+        $x         = $border->x * $map->tile_w + $right;
+        $y         = $map->h * $map->tile_h;
+        $rot       = 90;
+        $v_x       = 0;
+        $v_y       = -1;
+        $direction = 'NORTH';
     }
 
     die unless defined $x;
 
     my $car = Games::PuzzleCars::Car->new(
-        rect    => SDL::Rect->new( 0, 0, 34, 34 ),
-        surface => $self->_surfaces->{ $color . '_car' },
-        map     => $self->map,
-        road    => $border,
-        x       => $x,
-        y       => $y,
-        rot     => $rot,
-        v_x     => $v_x,
-        v_y     => $v_y,
+        rect      => SDL::Rect->new( 0, 0, 34, 34 ),
+        surface   => $self->_surfaces->{ $color . '_car' },
+        map       => $self->map,
+        road      => $border,
+        next_road => $border->next($direction),
+        direction => $direction,
+        x         => $x,
+        y         => $y,
+        rot       => $rot,
+        v_x       => $v_x,
+        v_y       => $v_y,
     );
 
     push @{ $self->cars }, $car;

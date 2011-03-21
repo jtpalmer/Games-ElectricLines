@@ -8,10 +8,16 @@ has [qw( x y rot v_x v_y )] => (
     required => 1,
 );
 
+has direction => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 1,
+);
+
 has turn => (
     is      => 'rw',
     isa     => 'HashRef',
-    clearer => 'clear_turn',
+    clearer => '_clear_turn',
     default => sub { {} },
 );
 
@@ -25,6 +31,12 @@ has road => (
     is       => 'rw',
     isa      => 'Games::PuzzleCars::Road',
     required => 1,
+);
+
+has next_road => (
+    is  => 'rw',
+    isa => 'Games::PuzzleCars::Road',
+    clearer => '_clear_next_road',
 );
 
 has _sprite => (
@@ -66,7 +78,19 @@ sub move {
         $self->y( $self->y + $self->v_y * $step );
     }
 
-    # Check if in next cell
+    if (   $self->next_road
+        && $self->next_road->contains( $self->x, $self->y ) )
+    {
+        my $new_next = $self->next_road->next( $self->direction );
+        $self->road( $self->next_road );
+        if ( $new_next ) {
+            $self->next_road($new_next);
+        }
+        else {
+            warn 'clearing next road';
+            $self->_clear_next_road();
+        }
+    }
 }
 
 no Mouse;

@@ -15,6 +15,8 @@ has arrow => (
     required => 1,
 );
 
+# TODO: sub next {
+
 sub handle_event {
     my ( $self, $event ) = @_;
 
