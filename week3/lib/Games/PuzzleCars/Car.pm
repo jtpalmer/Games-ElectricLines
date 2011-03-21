@@ -21,6 +21,11 @@ has map => (
     required => 1,
 );
 
+has road => (
+    is  => 'rw',
+    isa => 'Games::PuzzleCars::Road',
+);
+
 has _sprite => (
     is       => 'ro',
     isa      => 'Games::PuzzleCars::Sprite',

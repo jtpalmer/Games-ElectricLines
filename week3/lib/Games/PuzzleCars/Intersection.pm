@@ -1,23 +1,12 @@
 package Games::PuzzleCars::Intersection;
 use Mouse;
 
-has [qw( x y w h )] => (
-    is       => 'ro',
-    isa      => 'Int',
-    required => 1,
-);
+extends 'Games::PuzzleCars::Road';
 
 has direction => (
     is      => 'rw',
     isa     => 'Int',
     default => 0,
-);
-
-has directions => (
-    is  => 'ro',
-    isa => 'ArrayRef',
-
-    #required => 1,
 );
 
 has arrow => (
@@ -29,14 +18,19 @@ has arrow => (
 sub handle_event {
     my ( $self, $event ) = @_;
 
-    my $x      = $event->button_x;
-    my $y      = $event->button_y;
-    my $left   = $self->x - $self->w / 2;
-    my $right  = $self->x + $self->w / 2;
-    my $top    = $self->y - $self->h / 2;
-    my $bottom = $self->y + $self->h / 2;
+    my $e_x = $event->button_x;
+    my $e_y = $event->button_y;
 
-    return unless $x > $left && $x < $right && $y > $top && $y < $bottom;
+    my $x      = ( $self->x + 0.5 ) * $self->map->tile_w;
+    my $y      = ( $self->y + 0.5 ) * $self->map->tile_h;
+    my $s      = $self->arrow->h;
+    my $left   = $x - $s / 2;
+    my $right  = $x + $s / 2;
+    my $top    = $y - $s / 2;
+    my $bottom = $y + $s / 2;
+
+    return
+        unless $e_x > $left && $e_x < $right && $e_y > $top && $e_y < $bottom;
 
     $self->direction( ( $self->direction + 1 ) % 3 );
 }
@@ -45,12 +39,11 @@ sub draw {
     my ( $self, $surface ) = @_;
 
     my $arrow = $self->arrow;
-    $arrow->clip( [ $self->direction * $self->w, 0, $self->w, $self->h ] );
-    $arrow->draw_xy(
-        $surface,
-        $self->x - $self->w / 2,
-        $self->y - $self->h / 2
-    );
+    my $x     = ( $self->x + 0.5 ) * $self->map->tile_w;
+    my $y     = ( $self->y + 0.5 ) * $self->map->tile_h;
+    my $s     = $arrow->h;
+    $arrow->clip( [ $self->direction * $s, 0, $s, $s ] );
+    $arrow->draw_xy( $surface, $x - $s / 2, $y - $s / 2 );
 }
 
 no Mouse;
