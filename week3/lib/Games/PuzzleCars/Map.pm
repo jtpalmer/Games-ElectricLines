@@ -1,130 +1,227 @@
 package Games::PuzzleCars::Map;
 use Mouse;
+use List::Util qw( max );
 use SDL::Rect;
 use SDL::Event;
 use SDL::Events;
 use SDLx::Surface;
 use SDLx::Sprite;
+use Games::PuzzleCars::Road;
 use Games::PuzzleCars::Intersection;
 
-has background => (
+has _data => (
     is       => 'ro',
-    isa      => 'SDLx::Surface',
+    isa      => 'HashRef',
     required => 1,
+);
+
+has background => (
+    is      => 'ro',
+    isa     => 'SDLx::Surface',
+    lazy    => 1,
+    builder => '_build_background',
 );
 
 has roads => (
-    is       => 'ro',
-    isa      => 'ArrayRef[ArrayRef]',
-    required => 1,
+    is      => 'ro',
+    isa     => 'ArrayRef[ArrayRef]',
+    lazy    => 1,
+    builder => '_build_roads',
 );
 
 has intersections => (
-    is       => 'ro',
-    isa      => 'ArrayRef',
-    default  => sub { [] },
-    required => 1,
+    is      => 'ro',
+    isa     => 'ArrayRef[Games::PuzzleCars::Intersection]',
+    lazy    => 1,
+    builder => '_build_intersections',
 );
 
-has tile_w => (
+has borders => (
+    is      => 'ro',
+    isa     => 'ArrayRef[Games::PuzzleCars::Road]',
+    lazy    => 1,
+    builder => '_build_borders',
+);
+
+has [qw( w h tile_w tile_h )] => (
     is       => 'ro',
     isa      => 'Int',
     required => 1,
 );
 
-has tile_h => (
-    is       => 'ro',
-    isa      => 'Int',
-    required => 1,
-);
-
-around BUILDARGS => sub {
-    my ( $orig, $class, %args ) = @_;
-
-    my ( @roads, @intersections );
+sub _build_background {
+    my ($self) = @_;
 
     my $bg = SDLx::Surface->new(
-        w     => $args{w},
-        h     => $args{h},
+        w     => $self->w * $self->tile_w,
+        h     => $self->h * $self->tile_h,
         color => 0x000000FF,
     );
 
-    my $arrow = SDLx::Sprite->new( image => $args{intersection}{image} );
-    $arrow->alpha_key(0x000000);
+    my $data = $self->_data;
 
-    my $road_sprite = SDLx::Sprite->new( image => $args{roads}{image} );
-    open my $map_file, '<', $args{file};
-    my @map = map { chomp; [ split //, $_ ] } <$map_file>;
-    my ( $x, $y );
-    foreach my $row_id ( 0 .. $#map ) {
-        my @row = @{ $map[$row_id] };
-        foreach my $col_id ( 0 .. $#row ) {
+    my $road_sprite = SDLx::Sprite->new( image => $data->{roads}{image} );
 
-            my ( $prev_row, $next_row ) = ( $row_id - 1, $row_id + 1 );
-            $prev_row = $row_id + 1 if $row_id == 0;
-            $next_row = $row_id - 1 if $row_id == $#map;
-            my @v = ( $map[$prev_row][$col_id], $map[$next_row][$col_id] );
+    my $road_w       = $data->{roads}{w};
+    my $road_h       = $data->{roads}{h};
+    my $road_mapping = $data->{roads}{mapping};
 
-            my ( $prev_col, $next_col ) = ( $col_id - 1, $col_id + 1 );
-            $prev_col = $col_id + 1 if $col_id == 0;
-            $next_col = $col_id - 1 if $col_id == $#row;
-            my @h = ( $map[$row_id][$prev_col], $map[$row_id][$next_col] );
+    my $grid = $data->{grid};
 
-            foreach my $y_offset ( 0, 1 ) {
-                foreach my $x_offset ( 0, 1 ) {
+    my %horizontal = ( 0 => 'WEST',  1 => 'EAST' );
+    my %vertical   = ( 0 => 'NORTH', 1 => 'SOUTH' );
 
-                    my $cell = $map[$row_id][$col_id];
+    foreach my $col_id ( 0 .. $self->w - 1 ) {
+        foreach my $row_id ( 0 .. $self->h - 1 ) {
+            while ( my ( $y_i, $y_dir ) = each(%vertical) ) {
+                while ( my ( $x_i, $x_dir ) = each(%horizontal) ) {
 
                     my $index = 0;
-                    if ( $cell eq 'R' ) {
-                        push @roads, [ $col_id, $row_id ];
-                        if ( 2 < grep { $_ eq 'R' } ( @h, @v ) ) {
-                            push @intersections,
-                                Games::PuzzleCars::Intersection->new(
-                                x => ( $col_id + 0.5 ) * $args{roads}{w} * 2,
-                                y => ( $row_id + 0.5 ) * $args{roads}{h} * 2,
-                                arrow => $arrow,
-                                %{ $args{intersection} },
-                                );
-                        }
-
-                        $index += 1 if $v[$y_offset] eq 'R';
-                        $index += 2 if $h[$x_offset] eq 'R';
+                    if ( my %directions = %{ $grid->[$col_id][$row_id] } ) {
+                        $index += 1 if defined $directions{$y_dir};
+                        $index += 2 if defined $directions{$x_dir};
                     }
                     else {
                         $index = 4;
                     }
 
-                    my @tiles = @{ $args{roads}{mapping}
-                            [ 2 * $y_offset + $x_offset ] };
+                    my @tiles = @{ $road_mapping->[ 2 * $y_i + $x_i ] };
 
                     my @tile_group = @{ $tiles[$index] };
                     my @tile       = @{ $tile_group[ int rand @tile_group ] };
-                    $x = $tile[0];
-                    $y = $tile[1];
+                    my $x          = $tile[0];
+                    my $y          = $tile[1];
 
                     $road_sprite->clip(
-                        [   $x * $args{roads}{w}, $y * $args{roads}{h},
-                            $args{roads}{w},      $args{roads}{h}
-                        ]
-                    );
+                        [ $x * $road_w, $y * $road_h, $road_w, $road_h ] );
                     $road_sprite->draw_xy(
                         $bg,
-                        ( 2 * $col_id + $x_offset ) * $args{roads}{w},
-                        ( 2 * $row_id + $y_offset ) * $args{roads}{h}
+                        ( 2 * $col_id + $x_i ) * $road_w,
+                        ( 2 * $row_id + $y_i ) * $road_h
                     );
                 }
             }
         }
     }
 
-    $args{tile_w}        = $args{roads}{w} * 2;
-    $args{tile_h}        = $args{roads}{h} * 2;
-    $args{background}    = $bg;
-    $args{roads}         = \@roads;
-    $args{intersections} = \@intersections;
+    return $bg;
+}
 
-    return $class->$orig(%args);
+sub _build_roads {
+    my ($self) = @_;
+
+    my @roads;
+
+    my $data = $self->_data;
+
+    my $grid = $data->{grid};
+
+    my $arrow = SDLx::Sprite->new( image => $data->{intersection}{image} );
+    $arrow->alpha_key(0x000000);
+
+    foreach my $col_id ( 0 .. $self->w - 1 ) {
+        foreach my $row_id ( 0 .. $self->h - 1 ) {
+            if ( my %directions = %{ $grid->[$col_id][$row_id] } ) {
+                if ( keys %directions > 2 ) {
+                    $roads[$col_id][$row_id]
+                        = Games::PuzzleCars::Intersection->new(
+                        map        => $self,
+                        x          => $col_id,
+                        y          => $row_id,
+                        arrow      => $arrow,
+                        directions => \%directions,
+                        );
+                }
+                else {
+                    $roads[$col_id][$row_id] = Games::PuzzleCars::Road->new(
+                        map        => $self,
+                        x          => $col_id,
+                        y          => $row_id,
+                        directions => \%directions,
+                    );
+                }
+            }
+        }
+    }
+
+    return \@roads;
+}
+
+sub _build_intersections {
+    my ($self) = @_;
+
+    return [
+        grep { $_ && $_->isa('Games::PuzzleCars::Intersection') }
+        map {@$_} @{ $self->roads }
+    ];
+}
+
+sub _build_borders {
+    my ($self) = @_;
+
+    return [
+        grep {
+            $_
+                && ( $_->x == 0
+                || $_->x == $self->w - 1
+                || $_->y == 0
+                || $_->y == $self->h - 1 )
+            } map {@$_} @{ $self->roads }
+    ];
+}
+
+around BUILDARGS => sub {
+    my ( $orig, $class, %args ) = @_;
+
+    open my $map_file, '<', $args{file};
+    my @map = map { chomp; [ split //, $_ ] } <$map_file>;
+
+    my @grid;
+
+    my $h = $#map;
+    my $w = max map { $#{$_} } @map;
+
+    foreach my $row_id ( 0 .. $h ) {
+        foreach my $col_id ( 0 .. $w ) {
+
+            my ( $prev_row, $next_row ) = ( $row_id - 1, $row_id + 1 );
+            $prev_row = $row_id + 1 if $row_id == 0;
+            $next_row = $row_id - 1 if $row_id == $h;
+            my @v = ( $map[$prev_row][$col_id], $map[$next_row][$col_id] );
+
+            my ( $prev_col, $next_col ) = ( $col_id - 1, $col_id + 1 );
+            $prev_col = $col_id + 1 if $col_id == 0;
+            $next_col = $col_id - 1 if $col_id == $w;
+            my @h = ( $map[$row_id][$prev_col], $map[$row_id][$next_col] );
+
+            my $cell = $map[$row_id][$col_id];
+
+            if ( $cell eq 'R' ) {
+                my %directions;
+                $directions{WEST}  = 1 if $h[0] eq 'R';
+                $directions{EAST}  = 1 if $h[1] eq 'R';
+                $directions{NORTH} = 1 if $v[0] eq 'R';
+                $directions{SOUTH} = 1 if $v[1] eq 'R';
+
+                $grid[$col_id][$row_id] = \%directions;
+            }
+            else {
+                $grid[$col_id][$row_id] = {};
+            }
+        }
+    }
+
+    return $class->$orig(
+        _data => {
+            grid         => \@grid,
+            roads        => $args{roads},
+            intersection => $args{intersection},
+        },
+        w      => $w + 1,
+        h      => $h + 1,
+        tile_w => $args{roads}{w} * 2,
+        tile_h => $args{roads}{h} * 2,
+    );
 };
 
 sub handle_event {

@@ -21,6 +21,12 @@ has map => (
     required => 1,
 );
 
+has road => (
+    is       => 'rw',
+    isa      => 'Games::PuzzleCars::Road',
+    required => 1,
+);
+
 has _sprite => (
     is       => 'ro',
     isa      => 'Games::PuzzleCars::Sprite',
@@ -43,11 +49,11 @@ before draw => sub {
     my ($self) = @_;
 
     my $sprite = $self->_sprite;
-    my $rect = $sprite->rect;
+    my $rect   = $sprite->rect;
 
     $sprite->x( $self->x - $rect->w / 2 );
     $sprite->y( $self->y - $rect->h / 2 );
-    $sprite->rotation( $self->rot);
+    $sprite->rotation( $self->rot );
 };
 
 sub move {
