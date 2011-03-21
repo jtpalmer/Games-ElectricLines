@@ -164,7 +164,8 @@ sub _add_car {
 
     my $map     = $self->map;
     my $borders = $map->borders;
-    my $border  = $borders->[ int rand @$borders ];
+    #my $border  = $borders->[ int rand @$borders ];
+    my $border  = $borders->[ 0 ];
 
     my $colors = $self->_car_colors;
     my $color  = $colors->[ int rand @$colors ];

@@ -1,5 +1,6 @@
 package Games::PuzzleCars::Car;
 use Mouse;
+use Math::Trig qw( deg2rad );
 use Games::PuzzleCars::Sprite;
 
 has [qw( x y rot v_x v_y )] => (
@@ -18,7 +19,12 @@ has turn => (
     is      => 'rw',
     isa     => 'HashRef',
     clearer => '_clear_turn',
-    default => sub { {} },
+);
+
+has turned => (
+    is      => 'rw',
+    isa     => 'Bool',
+    default => 0,
 );
 
 has map => (
@@ -71,27 +77,72 @@ before draw => sub {
 sub move {
     my ( $self, $step, $c, $t ) = @_;
 
-    if ( my %turn = %{ $self->turn } ) {
+    if ( !$self->turned && (my $turn = $self->turn )) {
+        $turn->{angle} += $turn->{delta} * $step;
+        $turn->{angle} -= 360 while $turn->{angle} > 360;
+        $turn->{angle} += 360 while $turn->{angle} < 0;
+
+        my ( $xc, $yc, $r, $angle) = @$turn{qw( x y r angle )};
+
+        my $delta_dir = $turn->{delta} <=> 0;
+
+        my $x = $xc + cos( deg2rad($angle) ) * $r;
+        my $y = $yc - sin( deg2rad($angle) ) * $r;
+
+=pod
+        warn "$x $y $delta_dir\n";
+        warn "$xc $yc $r\n";
+        warn $turn->{angle}, ' ', $turn->{max_angle}, "\n";
+        warn "\n";
+=cut
+
+        $self->x( $x );
+        $self->y( $y );
+        $self->rot( $angle + 90 * $delta_dir );
+
+        if (int($turn->{angle}) == $turn->{max_angle}) {
+            my $finish = $turn->{finish};
+            $self->x( $finish->{x} );
+            $self->y( $finish->{y} );
+            $self->rot( $turn->{max_angle} + 90 * $delta_dir );
+            $self->v_x( $finish->{v_x} );
+            $self->v_y( $finish->{v_y} );
+            $self->direction( $finish->{direction} );
+            $self->_clear_turn();
+            $self->turned(1);
+        }
     }
     else {
         $self->x( $self->x + $self->v_x * $step );
         $self->y( $self->y + $self->v_y * $step );
+        $self->road->turn($self);
     }
 
     if (   $self->next_road
         && $self->next_road->contains( $self->x, $self->y ) )
     {
-        my $new_next = $self->next_road->next( $self->direction );
-        $self->road( $self->next_road );
-        if ( $new_next ) {
-            $self->next_road($new_next);
+        my $road = $self->next_road;
+        my $next = $road->next( $self->direction );
+
+        $self->road($road);
+
+        if ( $next ) {
+            $self->next_road($next);
         }
         else {
-            warn 'clearing next road';
             $self->_clear_next_road();
         }
+        $self->turned(0);
     }
 }
+
+around turn => sub {
+    my ( $orig, $self, $turn ) = @_;
+    return $self->$orig unless $turn;
+    use Data::Dumper;
+    print Dumper($turn);
+    return $self->$orig($turn);
+};
 
 no Mouse;
 

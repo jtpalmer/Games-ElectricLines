@@ -15,7 +15,30 @@ has arrow => (
     required => 1,
 );
 
-# TODO: sub next {
+sub _direction_count {
+    my ($self) = @_;
+
+    return scalar keys %{ $self->directions };
+}
+
+sub _next_direction {
+    my ( $self, $direction ) = @_;
+
+    return $direction if $self->direction == 2;
+
+    my %next = (
+        NORTH => [qw( EAST NORTH WEST SOUTH )],
+        EAST  => [qw( SOUTH EAST NORTH WEST )],
+        SOUTH => [qw( WEST SOUTH EAST NORTH )],
+        WEST  => [qw( NORTH WEST SOUTH EAST )],
+    );
+
+    my @dirs
+        = grep { defined $self->directions->{$_} } @{ $next{$direction} };
+
+    warn $direction, ' => ', $dirs[ $self->direction ];
+    return $dirs[ $self->direction ];
+}
 
 sub handle_event {
     my ( $self, $event ) = @_;
@@ -34,7 +57,8 @@ sub handle_event {
     return
         unless $e_x > $left && $e_x < $right && $e_y > $top && $e_y < $bottom;
 
-    $self->direction( ( $self->direction + 1 ) % 3 );
+    $self->direction(
+        ( $self->direction + 1 ) % ( $self->_direction_count - 1 ) );
 }
 
 sub draw {
