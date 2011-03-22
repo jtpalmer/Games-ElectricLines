@@ -53,7 +53,7 @@ has exits => (
 has exit_colors => (
     is      => 'ro',
     isa     => 'HashRef[Int]',
-    default => sub { { r => 0xFF0000FF, g => 0x00FF00FF, y => 0xB9C043FF, } },
+    default => sub { { r => 0x920A0AFF, g => 0x479932FF, y => 0xB9C043FF, } },
 );
 
 has [qw( w h tile_w tile_h )] => (
