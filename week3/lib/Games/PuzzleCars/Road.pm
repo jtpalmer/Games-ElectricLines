@@ -73,8 +73,8 @@ sub turn {
 
     my $r_i     = 12;
     my $r_o     = 38;
-    my $delta_i = 1;
-    my $delta_o = 0.5;
+    my $delta_i = 4;
+    my $delta_o = 2;
 
     my ( $xc, $yc, $r, $delta, $angle, $max_angle );
     if ( $d eq 'WEST' && $x < $right ) {
@@ -101,7 +101,7 @@ sub turn {
             $r         = $r_o;
             $delta     = $delta_o;
             $angle     = 270;
-            $max_angle = 0;
+            $max_angle = 360;
         }
         else {
             $yc        = $bottom;
@@ -133,7 +133,7 @@ sub turn {
             $xc        = $left;
             $r         = $r_i;
             $delta     = -$delta_i;
-            $angle     = 0;
+            $angle     = 360;
             $max_angle = 270;
         }
         else {

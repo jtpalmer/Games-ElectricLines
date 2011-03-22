@@ -79,8 +79,6 @@ sub move {
 
     if ( !$self->turned && ( my $turn = $self->turn ) ) {
         $turn->{angle} += $turn->{delta} * $step;
-        $turn->{angle} -= 360 while $turn->{angle} > 360;
-        $turn->{angle} += 360 while $turn->{angle} < 0;
 
         my ( $xc, $yc, $r, $angle ) = @$turn{qw( x y r angle )};
 
@@ -93,7 +91,7 @@ sub move {
         $self->y($y);
         $self->rot( $angle + 90 * $delta_dir );
 
-        if ( int( $turn->{angle} ) == $turn->{max_angle} ) {
+        if ( ( $turn->{angle} <=> $turn->{max_angle} ) == $delta_dir ) {
             my $finish = $turn->{finish};
             $self->x( $finish->{x} );
             $self->y( $finish->{y} );
