@@ -1,6 +1,6 @@
--R------
-RRRRRR--
+---g----
+rRRRRR--
 -R-R-R--
 -R-R-R--
--RRR-RRR
+-RRR-RRy
 -R------

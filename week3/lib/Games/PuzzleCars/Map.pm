@@ -43,6 +43,19 @@ has borders => (
     builder => '_build_borders',
 );
 
+has exits => (
+    is      => 'ro',
+    isa     => 'ArrayRef[ArrayRef]',
+    lazy    => 1,
+    builder => '_build_exits',
+);
+
+has exit_colors => (
+    is      => 'ro',
+    isa     => 'HashRef[Int]',
+    default => sub { { r => 0xFF0000FF, g => 0x00FF00FF, y => 0xB9C043FF, } },
+);
+
 has [qw( w h tile_w tile_h )] => (
     is       => 'ro',
     isa      => 'Int',
@@ -66,7 +79,8 @@ sub _build_background {
     my $road_h       = $data->{roads}{h};
     my $road_mapping = $data->{roads}{mapping};
 
-    my $grid = $data->{grid};
+    my $grid  = $data->{grid};
+    my $exits = $data->{exits};
 
     my %horizontal = ( 0 => 'WEST',  1 => 'EAST' );
     my %vertical   = ( 0 => 'NORTH', 1 => 'SOUTH' );
@@ -100,6 +114,15 @@ sub _build_background {
                         ( 2 * $row_id + $y_i ) * $road_h
                     );
                 }
+            }
+            if ( my $color = $exits->[$col_id][$row_id] ) {
+                $bg->draw_circle_filled(
+                    [   ( $col_id + 0.5 ) * $self->tile_w,
+                        ( $row_id + 0.5 ) * $self->tile_h
+                    ],
+                    $road_h / 4,
+                    $self->exit_colors->{$color}
+                );
             }
         }
     }
@@ -170,6 +193,11 @@ sub _build_borders {
     ];
 }
 
+sub _build_exits {
+    my ($self) = @_;
+    return $self->_data->{exits};
+}
+
 around BUILDARGS => sub {
     my ( $orig, $class, %args ) = @_;
 
@@ -177,6 +205,7 @@ around BUILDARGS => sub {
     my @map = map { chomp; [ split //, $_ ] } <$map_file>;
 
     my @grid;
+    my @exits;
 
     my $h = $#map;
     my $w = max map { $#{$_} } @map;
@@ -196,14 +225,15 @@ around BUILDARGS => sub {
 
             my $cell = $map[$row_id][$col_id];
 
-            if ( $cell eq 'R' ) {
+            if ( $cell =~ /[Rrgy]/ ) {
                 my %directions;
-                $directions{WEST}  = 1 if $h[0] eq 'R';
-                $directions{EAST}  = 1 if $h[1] eq 'R';
-                $directions{NORTH} = 1 if $v[0] eq 'R';
-                $directions{SOUTH} = 1 if $v[1] eq 'R';
+                $directions{WEST}  = 1 if $h[0] =~ /[Rrgy]/;
+                $directions{EAST}  = 1 if $h[1] =~ /[Rrgy]/;
+                $directions{NORTH} = 1 if $v[0] =~ /[Rrgy]/;
+                $directions{SOUTH} = 1 if $v[1] =~ /[Rrgy]/;
 
                 $grid[$col_id][$row_id] = \%directions;
+                $exits[$col_id][$row_id] = $cell if $cell =~ /[rgy]/;
             }
             else {
                 $grid[$col_id][$row_id] = {};
@@ -214,6 +244,7 @@ around BUILDARGS => sub {
     return $class->$orig(
         _data => {
             grid         => \@grid,
+            exits        => \@exits,
             roads        => $args{roads},
             intersection => $args{intersection},
         },

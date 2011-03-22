@@ -5,6 +5,7 @@ use File::Spec;
 use SDL;
 use SDLx::App;
 use SDLx::Surface;
+use SDLx::Text;
 use Games::PuzzleCars::Map;
 use Games::PuzzleCars::Car;
 
@@ -56,7 +57,21 @@ has _last_car_time => (
 has _car_colors => (
     is      => 'ro',
     isa     => 'ArrayRef[Str]',
-    default => sub { [qw( red green yellow )] },
+    default => sub { [qw( r g y )] },
+);
+
+has points => (
+    is      => 'rw',
+    isa     => 'Int',
+    default => 0,
+);
+
+has _label => (
+    is      => 'ro',
+    isa     => 'SDLx::Text',
+    default => sub {
+        SDLx::Text->new( x => 10, y => 10, size => 32, color => [ 0, 0, 0 ] );
+    },
 );
 
 has _surfaces => (
@@ -173,6 +188,17 @@ sub handle_move {
             || $car->y < 0
             || $car->y > $map->h * $map->tile_h )
         {
+
+            my $road = $car->road;
+            if ( my $exit = $map->exits->[ $road->x ][ $road->y ] ) {
+                if ( $car->color eq $exit ) {
+                    $self->points( $self->points + 10 );
+                }
+                else {
+                    $self->points( $self->points - 10 );
+                }
+            }
+
             @{ $self->cars } = grep { $_ ne $car } @{ $self->cars };
         }
     }
@@ -183,6 +209,7 @@ sub handle_show {
 
     $self->map->draw($app);
     $_->draw($app) foreach @{ $self->cars };
+    $self->_label->write_to( $app, 'Score: ' . $self->points );
     $app->update();
 }
 
@@ -239,6 +266,7 @@ sub _add_car {
     die unless defined $x;
 
     my $car = Games::PuzzleCars::Car->new(
+        color     => $color,
         rect      => SDL::Rect->new( 0, 0, 34, 34 ),
         surface   => $self->_surfaces->{ $color . '_car' },
         map       => $self->map,

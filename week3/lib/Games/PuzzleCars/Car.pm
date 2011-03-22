@@ -52,6 +52,12 @@ has _sprite => (
     handles  => [qw( draw )],
 );
 
+has color => (
+    is       => 'ro',
+    isa      => 'Str',
+    required => 1,
+);
+
 around BUILDARGS => sub {
     my ( $orig, $class, %args ) = @_;
 
