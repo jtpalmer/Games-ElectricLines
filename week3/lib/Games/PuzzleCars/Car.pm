@@ -40,8 +40,8 @@ has road => (
 );
 
 has next_road => (
-    is  => 'rw',
-    isa => 'Games::PuzzleCars::Road',
+    is      => 'rw',
+    isa     => 'Games::PuzzleCars::Road',
     clearer => '_clear_next_road',
 );
 
@@ -77,23 +77,23 @@ before draw => sub {
 sub move {
     my ( $self, $step, $c, $t ) = @_;
 
-    if ( !$self->turned && (my $turn = $self->turn )) {
+    if ( !$self->turned && ( my $turn = $self->turn ) ) {
         $turn->{angle} += $turn->{delta} * $step;
         $turn->{angle} -= 360 while $turn->{angle} > 360;
         $turn->{angle} += 360 while $turn->{angle} < 0;
 
-        my ( $xc, $yc, $r, $angle) = @$turn{qw( x y r angle )};
+        my ( $xc, $yc, $r, $angle ) = @$turn{qw( x y r angle )};
 
         my $delta_dir = $turn->{delta} <=> 0;
 
         my $x = $xc + cos( deg2rad($angle) ) * $r;
         my $y = $yc - sin( deg2rad($angle) ) * $r;
 
-        $self->x( $x );
-        $self->y( $y );
+        $self->x($x);
+        $self->y($y);
         $self->rot( $angle + 90 * $delta_dir );
 
-        if (int($turn->{angle}) == $turn->{max_angle}) {
+        if ( int( $turn->{angle} ) == $turn->{max_angle} ) {
             my $finish = $turn->{finish};
             $self->x( $finish->{x} );
             $self->y( $finish->{y} );
@@ -108,7 +108,7 @@ sub move {
     else {
         $self->x( $self->x + $self->v_x * $step );
         $self->y( $self->y + $self->v_y * $step );
-        $self->road->turn($self);
+        $self->road->turn($self) unless $self->turned;
     }
 
     if (   $self->next_road
@@ -119,7 +119,7 @@ sub move {
 
         $self->road($road);
 
-        if ( $next ) {
+        if ($next) {
             $self->next_road($next);
         }
         else {
