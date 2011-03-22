@@ -36,7 +36,6 @@ sub _next_direction {
     my @dirs
         = grep { defined $self->directions->{$_} } @{ $next{$direction} };
 
-    warn $direction, ' => ', $dirs[ $self->direction ];
     return $dirs[ $self->direction ];
 }
 

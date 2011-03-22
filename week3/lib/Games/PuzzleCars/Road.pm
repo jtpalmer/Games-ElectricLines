@@ -44,16 +44,12 @@ sub next {
 
     my $x = $self->x;
     my $y = $self->y;
-    warn "$x $y\n";
     $x -= 1 if $direction eq 'WEST';
     $x += 1 if $direction eq 'EAST';
     $y -= 1 if $direction eq 'NORTH';
     $y += 1 if $direction eq 'SOUTH';
 
-    warn "$x $y $direction\n";
-
     my $roads = $self->map->roads;
-    die "ROAD NOT FOUND" unless defined $roads->[$x][$y];
     return undef unless defined $roads->[$x][$y];
 
     return $roads->[$x][$y];
@@ -136,14 +132,14 @@ sub turn {
         if ( $nd eq 'WEST' ) {
             $xc        = $left;
             $r         = $r_i;
-            $delta     = $delta_i;
+            $delta     = -$delta_i;
             $angle     = 0;
             $max_angle = 270;
         }
         else {
             $xc        = $right;
             $r         = $r_o;
-            $delta     = -$delta_o;
+            $delta     = $delta_o;
             $angle     = 180;
             $max_angle = 270;
         }
@@ -155,7 +151,7 @@ sub turn {
 
     my ( $fx, $fy, $fvx, $fvy );
     if ( $nd eq 'WEST' ) {
-        $fx  = $right;
+        $fx  = $left;
         $fy  = $top + 12;
         $fvx = -1;
         $fvy = 0;

@@ -89,13 +89,6 @@ sub move {
         my $x = $xc + cos( deg2rad($angle) ) * $r;
         my $y = $yc - sin( deg2rad($angle) ) * $r;
 
-=pod
-        warn "$x $y $delta_dir\n";
-        warn "$xc $yc $r\n";
-        warn $turn->{angle}, ' ', $turn->{max_angle}, "\n";
-        warn "\n";
-=cut
-
         $self->x( $x );
         $self->y( $y );
         $self->rot( $angle + 90 * $delta_dir );
@@ -135,14 +128,6 @@ sub move {
         $self->turned(0);
     }
 }
-
-around turn => sub {
-    my ( $orig, $self, $turn ) = @_;
-    return $self->$orig unless $turn;
-    use Data::Dumper;
-    print Dumper($turn);
-    return $self->$orig($turn);
-};
 
 no Mouse;
 
