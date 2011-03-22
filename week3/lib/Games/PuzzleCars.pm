@@ -41,6 +41,18 @@ has cars => (
     default => sub { [] },
 );
 
+has car_frequency => (
+    is      => 'ro',
+    isa     => 'Num',
+    default => 3,
+);
+
+has _last_car_time => (
+    is      => 'rw',
+    isa     => 'Num',
+    default => 0,
+);
+
 has _car_colors => (
     is      => 'ro',
     isa     => 'ArrayRef[Str]',
@@ -145,7 +157,25 @@ sub handle_event {
 
 sub handle_move {
     my ( $self, $step, $app, $t ) = @_;
-    $_->move( $step, $app, $t ) foreach @{ $self->cars };
+
+    if ( $t > $self->_last_car_time + $self->car_frequency ) {
+        $self->_last_car_time($t);
+        $self->_add_car();
+    }
+
+    my $map  = $self->map;
+    my @cars = @{ $self->cars };
+    foreach my $car (@cars) {
+        $car->move( $step, $app, $t );
+
+        if (   $car->x < 0
+            || $car->x > $map->w * $map->tile_w
+            || $car->y < 0
+            || $car->y > $map->h * $map->tile_h )
+        {
+            @{ $self->cars } = grep { $_ ne $car } @{ $self->cars };
+        }
+    }
 }
 
 sub handle_show {
