@@ -36,6 +36,10 @@ sub _next_direction {
     my @dirs
         = grep { defined $self->directions->{$_} } @{ $next{$direction} };
 
+    if ( $self->_direction_count == 4 ) {
+        @dirs = grep { $_ ne $direction } @dirs;
+    }
+
     return $dirs[ $self->direction ];
 }
 
