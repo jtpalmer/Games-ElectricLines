@@ -89,6 +89,7 @@ sub _build_app {
         dt    => 0.02,
         eoq   => 1,
         delay => 20,
+        title => 'Puzzle Cars',
     );
 }
 
