@@ -130,10 +130,7 @@ sub _build_surfaces {
 sub BUILD {
     my ($self) = @_;
 
-    $self->_add_car(0);
-    $self->_add_car(1);
-    $self->_add_car(2);
-    $self->_add_car(3);
+    $self->_add_car();
 
     my $app = $self->app;
     $app->add_event_handler( sub { $self->handle_event(@_) } );
@@ -160,15 +157,14 @@ sub handle_show {
 }
 
 sub _add_car {
-    my ($self, $b) = @_;
+    my ($self) = @_;
 
     my $left  = 37;
     my $right = 63;
 
     my $map     = $self->map;
     my $borders = $map->borders;
-    #my $border  = $borders->[ int rand @$borders ];
-    my $border  = $borders->[ $b ];
+    my $border  = $borders->[ int rand @$borders ];
 
     my $colors = $self->_car_colors;
     my $color  = $colors->[ int rand @$colors ];
