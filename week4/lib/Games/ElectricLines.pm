@@ -41,9 +41,9 @@ sub _build_sprite {
     my ($self) = @_;
 
     my $sprite = SDLx::Sprite::Animated->new(
-        rect => SDL::Rect->new( 0, 0, 526, 526 ),
+        rect => SDL::Rect->new( 0, 0, 50, 50 ),
         image => File::Spec->catfile( $self->_share_dir, 'plasma.bmp' ),
-        ticks_per_frame => 5,
+        ticks_per_frame => 2,
     );
     $sprite->start();
     return $sprite;
