@@ -10,14 +10,12 @@ use SDLx::Sprite::Animated;
 has _share_dir => (
     is      => 'ro',
     isa     => 'Str',
-    lazy    => 1,
     default => sub { File::Spec->catdir( $Bin, 'share' ) },
 );
 
 has app => (
     is      => 'ro',
     isa     => 'SDLx::App',
-    lazy    => 1,
     builder => '_build_app',
     handles => [qw( run )],
 );
