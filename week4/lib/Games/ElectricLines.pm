@@ -32,6 +32,8 @@ has sprite => (
 sub _build_app {
     return SDLx::App->new(
         title => 'Electric Lines',
+        w     => 800,
+        h     => 600,
         delay => 30,
         eoq   => 1,
     );
