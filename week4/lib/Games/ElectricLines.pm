@@ -15,14 +15,14 @@ has _share_dir => (
     default => sub { File::Spec->catdir( $Bin, 'share' ) },
 );
 
-has app => (
+has _app => (
     is      => 'ro',
     isa     => 'SDLx::App',
     builder => '_build_app',
     handles => [qw( run )],
 );
 
-has sprite => (
+has _sprite => (
     is      => 'ro',
     isa     => 'SDLx::Sprite::Animated',
     lazy    => 1,
@@ -90,7 +90,6 @@ sub _build_sprite {
     my $sprite = SDLx::Sprite::Animated->new(
         rect => SDL::Rect->new( 0, 50, 50, 50 ),
         image => File::Spec->catfile( $self->_share_dir, 'plasma.bmp' ),
-        ticks_per_frame => 2,
     );
     $sprite->alpha_key(0x000000);
     $sprite->start();
@@ -102,7 +101,7 @@ sub _build_starting_points {
 
     my $count = 4;
 
-    my $app   = $self->app;
+    my $app   = $self->_app;
     my $space = $app->h / $count;
     my $x     = 0;
 
@@ -119,7 +118,7 @@ sub _build_starting_points {
 sub _build_horizontal_lines {
     my ($self) = @_;
 
-    my $x = $self->app->w;
+    my $x = $self->_app->w;
 
     my @lines;
     foreach my $point ( @{ $self->_starting_points } ) {
@@ -134,7 +133,7 @@ sub BUILD {
 
     $self->_add_plasma();
 
-    my $app = $self->app;
+    my $app = $self->_app;
     $app->add_event_handler( sub { $self->handle_event(@_) } );
     $app->add_move_handler( sub  { $self->handle_move(@_) } );
     $app->add_show_handler( sub  { $self->handle_show(@_) } );
@@ -179,9 +178,13 @@ sub handle_move {
         $self->_add_plasma();
     }
 
+    my @plasma;
     foreach my $plasma ( @{ $self->_plasma } ) {
         $self->_move_plasma( $plasma, $step );
+        push @plasma, $plasma
+            if $plasma->{x} < $app->w - $self->_sprite->rect->w / 2;
     }
+    @{ $self->_plasma } = @plasma;
 }
 
 sub handle_show {
@@ -196,6 +199,7 @@ sub handle_show {
     if ( $self->_has_active_line() ) {
         $self->_draw_active_line( $self->_active_line );
     }
+    $self->_sprite->ticks_per_frame( 2 * @{ $self->_plasma } );
     foreach my $plasma ( @{ $self->_plasma } ) {
         $self->_draw_plasma($plasma);
     }
@@ -204,6 +208,8 @@ sub handle_show {
 
 sub _move_plasma {
     my ( $self, $plasma, $step ) = @_;
+
+    $step *= 3;
 
     if ( defined $plasma->{crossing} ) {
         my ( $line, $direction )
@@ -254,10 +260,10 @@ sub _draw_active_line {
     my $segments = $self->_segment_line($line);
 
     foreach my $line ( @{ $segments->{good} } ) {
-        $self->app->draw_line( @$line, 0x00FF00FF );
+        $self->_app->draw_line( @$line, 0x00FF00FF );
     }
     foreach my $line ( @{ $segments->{bad} } ) {
-        $self->app->draw_line( @$line, 0xFF0000FF );
+        $self->_app->draw_line( @$line, 0xFF0000FF );
     }
 }
 
@@ -312,10 +318,10 @@ sub _interpolate_x {
 sub _draw_plasma {
     my ( $self, $plasma ) = @_;
 
-    my $sprite = $self->sprite;
+    my $sprite = $self->_sprite;
     $sprite->x( $plasma->{x} - $sprite->rect->w / 2 );
     $sprite->y( $plasma->{y} - $sprite->rect->h / 2 );
-    $sprite->draw( $self->app );
+    $sprite->draw( $self->_app );
 }
 
 sub _add_plasma {
@@ -327,7 +333,7 @@ sub _add_plasma {
     my $line   = $self->_horizontal_lines->[$i];
 
     my %plasma = (
-        x    => $start[0],
+        x    => $start[0] + $self->_sprite->rect->w / 2,
         y    => $start[1],
         line => $line,
     );
