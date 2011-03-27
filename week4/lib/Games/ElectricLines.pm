@@ -48,10 +48,11 @@ sub _build_sprite {
     my ($self) = @_;
 
     my $sprite = SDLx::Sprite::Animated->new(
-        rect => SDL::Rect->new( 0, 0, 50, 50 ),
+        rect => SDL::Rect->new( 0, 50, 50, 50 ),
         image => File::Spec->catfile( $self->_share_dir, 'plasma.bmp' ),
         ticks_per_frame => 2,
     );
+    $sprite->alpha_key(0x000000);
     $sprite->start();
     return $sprite;
 }
@@ -95,6 +96,7 @@ sub handle_move {
 sub handle_show {
     my ( $self, $delta, $app ) = @_;
 
+    $app->draw_rect( undef, undef );
     foreach my $line ( @{ $self->h_lines } ) {
         $app->draw_line( @$line, 0xFFFFFFFF );
     }
