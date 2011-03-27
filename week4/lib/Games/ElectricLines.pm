@@ -103,7 +103,7 @@ sub _build_starting_points {
 
     my $app   = $self->_app;
     my $space = $app->h / $count;
-    my $x     = 0;
+    my $x     = $self->_sprite->rect->w / 2;
 
     my @points;
 
@@ -118,7 +118,7 @@ sub _build_starting_points {
 sub _build_horizontal_lines {
     my ($self) = @_;
 
-    my $x = $self->_app->w;
+    my $x = $self->_app->w - $self->_sprite->rect->w / 2;
 
     my @lines;
     foreach my $point ( @{ $self->_starting_points } ) {
@@ -333,7 +333,7 @@ sub _add_plasma {
     my $line   = $self->_horizontal_lines->[$i];
 
     my %plasma = (
-        x    => $start[0] + $self->_sprite->rect->w / 2,
+        x    => $start[0],
         y    => $start[1],
         line => $line,
     );
