@@ -164,7 +164,7 @@ sub handle_show {
         $app->draw_line( @$line, 0xFFFFFFFF );
     }
     if ( $self->_has_active_line() ) {
-        $app->draw_line( @{ $self->_active_line }, 0xFF0000FF );
+        $self->_draw_active_line( $self->_active_line );
     }
     foreach my $plasma ( @{ $self->_plasma } ) {
         $self->_draw_plasma($plasma);
@@ -176,6 +176,67 @@ sub _move_plasma {
     my ( $self, $plasma, $step ) = @_;
 
     $plasma->{x} += $step;
+}
+
+sub _draw_active_line {
+    my ( $self, $line ) = @_;
+
+    my $segments = $self->_segment_line($line);
+
+    foreach my $line ( @{ $segments->{good} } ) {
+        $self->app->draw_line( @$line, 0x00FF00FF );
+    }
+    foreach my $line ( @{ $segments->{bad} } ) {
+        $self->app->draw_line( @$line, 0xFF0000FF );
+    }
+}
+
+sub _segment_line {
+    my ( $self, $line ) = @_;
+
+    my ( $x0, $y0, $x1, $y1 ) = map {@$_} @$line;
+
+    my @good;
+    my @bad;
+
+    my $direction = $y0 <=> $y1;
+    if ( $direction == 0 ) {
+        push @bad, $line;
+    }
+    else {
+        my @rows = grep {
+            ( $y0 <=> $_->[1] ) == $direction
+                && ( $y1 <=> $_->[1] )
+                != $direction
+        } @{ $self->_starting_points };
+        @rows = reverse @rows if $direction == 1;
+
+        if ( @rows < 2 ) {
+            push @bad, $line;
+        }
+        else {
+            my @segment = (
+                [ $self->_interpolate_x( $line, $rows[0][1] ), $rows[0][1] ],
+                [ $self->_interpolate_x( $line, $rows[1][1] ), $rows[1][1] ]
+            );
+            push @good, \@segment;
+            push @bad, [ $line->[0], $segment[0] ],
+                [ $segment[1], $line->[1] ];
+        }
+    }
+
+    return {
+        good => \@good,
+        bad  => \@bad,
+    };
+}
+
+sub _interpolate_x {
+    my ( $self, $line, $y ) = @_;
+    my ( $x0, $y0, $x1, $y1 ) = map {@$_} @$line;
+    my $m = ( $y1 - $y0 ) / ( $x1 - $x0 );
+    my $b = $y0 - $x0 * $m;
+    return ( $y - $b ) / $m;
 }
 
 sub _draw_plasma {
