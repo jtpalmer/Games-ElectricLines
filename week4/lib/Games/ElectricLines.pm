@@ -50,6 +50,12 @@ has _active_line => (
     predicate => '_has_active_line',
 );
 
+has _crossing_lines => (
+    is      => 'ro',
+    isa     => 'ArrayRef',
+    default => sub { [] },
+);
+
 has _plasma => (
     is      => 'ro',
     isa     => 'ArrayRef',
@@ -142,10 +148,15 @@ sub handle_event {
         my $x = $event->button_x;
         my $y = $event->button_y;
         $self->_active_line->[1] = [ $x, $y ];
-
-        # TODO: store line
+        $self->_store_active_line();
         $self->_clear_active_line();
     }
+}
+
+sub _store_active_line {
+    my ($self) = @_;
+    my $segments = $self->_segment_line( $self->_active_line );
+    push @{ $self->_crossing_lines }, @{ $segments->{good} };
 }
 
 sub handle_move {
@@ -160,7 +171,9 @@ sub handle_show {
     my ( $self, $delta, $app ) = @_;
 
     $app->draw_rect( undef, undef );
-    foreach my $line ( @{ $self->_horizontal_lines } ) {
+    foreach my $line ( @{ $self->_horizontal_lines },
+        @{ $self->_crossing_lines } )
+    {
         $app->draw_line( @$line, 0xFFFFFFFF );
     }
     if ( $self->_has_active_line() ) {
@@ -205,7 +218,7 @@ sub _segment_line {
     }
     else {
         my @rows = grep {
-            ( $y0 <=> $_->[1] ) == $direction
+                   ( $y0 <=> $_->[1] ) == $direction
                 && ( $y1 <=> $_->[1] )
                 != $direction
         } @{ $self->_starting_points };
