@@ -27,11 +27,18 @@ has sprite => (
     builder => '_build_sprite',
 );
 
-has h_lines => (
+has _starting_points => (
     is      => 'ro',
     isa     => 'ArrayRef',
     lazy    => 1,
-    builder => '_build_h_lines',
+    builder => '_build_starting_points',
+);
+
+has _horizontal_lines => (
+    is      => 'ro',
+    isa     => 'ArrayRef',
+    lazy    => 1,
+    builder => '_build_horizontal_lines',
 );
 
 sub _build_app {
@@ -57,20 +64,33 @@ sub _build_sprite {
     return $sprite;
 }
 
-sub _build_h_lines {
+sub _build_starting_points {
     my ($self) = @_;
 
     my $count = 4;
 
     my $app   = $self->app;
     my $space = $app->h / $count;
-    my $x0    = 0;
-    my $x1    = $app->w;
+    my $x    = 0;
 
-    my @lines;
+    my @points;
+
     foreach my $i ( 1 .. $count ) {
         my $y = ( $i - 0.5 ) * $space;
-        push @lines, [ [ $x0, $y ], [ $x1, $y ] ];
+        push @points, [ $x, $y ];
+    }
+
+    return \@points;
+}
+
+sub _build_horizontal_lines {
+    my ($self) = @_;
+
+    my $x  = $self->app->w;
+
+    my @lines;
+    foreach my $point ( @{ $self->_starting_points } ) {
+        push @lines, [ $point, [ $x, $point->[1] ] ];
     }
 
     return \@lines;
@@ -97,7 +117,7 @@ sub handle_show {
     my ( $self, $delta, $app ) = @_;
 
     $app->draw_rect( undef, undef );
-    foreach my $line ( @{ $self->h_lines } ) {
+    foreach my $line ( @{ $self->_horizontal_lines } ) {
         $app->draw_line( @$line, 0xFFFFFFFF );
     }
     $self->sprite->draw($app);
