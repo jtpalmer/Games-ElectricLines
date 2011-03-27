@@ -188,7 +188,47 @@ sub handle_show {
 sub _move_plasma {
     my ( $self, $plasma, $step ) = @_;
 
-    $plasma->{x} += $step;
+    if ( defined $plasma->{crossing} ) {
+        my ( $line, $direction )
+            = @{ $plasma->{crossing} }{qw( line direction )};
+        my $y = $plasma->{y};
+        $y += $direction * $step;
+
+        my $end = $line->[1];
+        if ( ( $y <=> $end->[1] ) == $direction ) {
+            $plasma->{x} = $end->[0];
+            $plasma->{y} = $end->[1];
+            delete $plasma->{crossing};
+        }
+        else {
+            my $x = $self->_interpolate_x( $line, $y );
+            $plasma->{x} = $x;
+            $plasma->{y} = $y;
+        }
+    }
+    else {
+        my $y  = $plasma->{y};
+        my $x0 = $plasma->{x};
+        my $x1 = $x0 + $step;
+
+        my ($crossing) = map { $_->[1] }
+            sort { $a->[0] <=> $b->[0] }
+            grep { $_->[0] > $x0 && $x1 >= $_->[0] } map {
+                  $_->[0][1] == $y ? [ $_->[0][0], [ $_->[0], $_->[1] ] ]
+                : $_->[1][1] == $y ? [ $_->[1][0], [ $_->[1], $_->[0] ] ]
+                : ()
+            } @{ $self->_crossing_lines };
+
+        if ($crossing) {
+            $plasma->{crossing} = {
+                line      => $crossing,
+                direction => ( $crossing->[1][1] <=> $crossing->[0][1] ),
+            };
+        }
+        else {
+            $plasma->{x} = $x1;
+        }
+    }
 }
 
 sub _draw_active_line {
