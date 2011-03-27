@@ -99,30 +99,24 @@ sub _build_sprite {
 sub _build_starting_points {
     my ($self) = @_;
 
-    my $count = 4;
-
-    my $app   = $self->_app;
-    my $space = $app->h / $count;
-    my $x     = $self->_sprite->rect->w / 2;
-
-    my @points;
-
-    foreach my $i ( 1 .. $count ) {
-        my $y = ( $i - 0.5 ) * $space;
-        push @points, [ $x, $y ];
-    }
-
-    return \@points;
+    return [ map { $_->[0] } @{ $self->_horizontal_lines } ];
 }
 
 sub _build_horizontal_lines {
     my ($self) = @_;
 
-    my $x = $self->_app->w - $self->_sprite->rect->w / 2;
+    my $count = 4;
+
+    my $app   = $self->_app;
+    my $space = $app->h / $count;
+
+    my $x0 = $self->_sprite->rect->w / 2;
+    my $x1 = $app->w - $self->_sprite->rect->w / 2;
 
     my @lines;
-    foreach my $point ( @{ $self->_starting_points } ) {
-        push @lines, [ $point, [ $x, $point->[1] ] ];
+    foreach my $i ( 1 .. $count ) {
+        my $y = ( $i - 0.5 ) * $space;
+        push @lines, [ [ $x0, $y ], [ $x1, $y ] ];
     }
 
     return \@lines;
