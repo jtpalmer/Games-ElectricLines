@@ -27,6 +27,13 @@ has sprite => (
     builder => '_build_sprite',
 );
 
+has h_lines => (
+    is      => 'ro',
+    isa     => 'ArrayRef',
+    lazy    => 1,
+    builder => '_build_h_lines',
+);
+
 sub _build_app {
     return SDLx::App->new(
         title => 'Electric Lines',
@@ -49,6 +56,25 @@ sub _build_sprite {
     return $sprite;
 }
 
+sub _build_h_lines {
+    my ($self) = @_;
+
+    my $count = 4;
+
+    my $app   = $self->app;
+    my $space = $app->h / $count;
+    my $x0    = 0;
+    my $x1    = $app->w;
+
+    my @lines;
+    foreach my $i ( 1 .. $count ) {
+        my $y = ( $i - 0.5 ) * $space;
+        push @lines, [ [ $x0, $y ], [ $x1, $y ] ];
+    }
+
+    return \@lines;
+}
+
 sub BUILD {
     my ($self) = @_;
 
@@ -69,6 +95,9 @@ sub handle_move {
 sub handle_show {
     my ( $self, $delta, $app ) = @_;
 
+    foreach my $line ( @{ $self->h_lines } ) {
+        $app->draw_line( @$line, 0xFFFFFFFF );
+    }
     $self->sprite->draw($app);
     $app->update();
 }
