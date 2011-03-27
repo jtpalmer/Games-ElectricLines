@@ -3,6 +3,8 @@ use Mouse;
 use FindBin qw( $Bin );
 use File::Spec;
 use SDL;
+use SDL::Event;
+use SDL::Events;
 use SDL::Rect;
 use SDLx::App;
 use SDLx::Sprite::Animated;
@@ -39,6 +41,13 @@ has _horizontal_lines => (
     isa     => 'ArrayRef',
     lazy    => 1,
     builder => '_build_horizontal_lines',
+);
+
+has _active_line => (
+    is        => 'rw',
+    isa       => 'ArrayRef',
+    clearer   => '_clear_active_line',
+    predicate => '_has_active_line',
 );
 
 has _plasma => (
@@ -115,6 +124,28 @@ sub BUILD {
 
 sub handle_event {
     my ( $self, $event, $app ) = @_;
+
+    if ( $event->type == SDL_MOUSEBUTTONDOWN ) {
+        return unless $event->button_button == SDL_BUTTON_LEFT;
+        my $x = $event->button_x;
+        my $y = $event->button_y;
+        $self->_active_line( [ [ $x, $y ], [ $x, $y ] ] );
+    }
+    elsif ( $event->type == SDL_MOUSEMOTION ) {
+        return unless $self->_has_active_line();
+        my $x = $event->motion_x;
+        my $y = $event->motion_y;
+        $self->_active_line->[1] = [ $x, $y ];
+    }
+    elsif ( $event->type == SDL_MOUSEBUTTONUP ) {
+        return unless $event->button_button == SDL_BUTTON_LEFT;
+        my $x = $event->button_x;
+        my $y = $event->button_y;
+        $self->_active_line->[1] = [ $x, $y ];
+
+        # TODO: store line
+        $self->_clear_active_line();
+    }
 }
 
 sub handle_move {
@@ -131,6 +162,9 @@ sub handle_show {
     $app->draw_rect( undef, undef );
     foreach my $line ( @{ $self->_horizontal_lines } ) {
         $app->draw_line( @$line, 0xFFFFFFFF );
+    }
+    if ( $self->_has_active_line() ) {
+        $app->draw_line( @{ $self->_active_line }, 0xFF0000FF );
     }
     foreach my $plasma ( @{ $self->_plasma } ) {
         $self->_draw_plasma($plasma);
