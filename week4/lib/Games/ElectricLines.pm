@@ -62,6 +62,18 @@ has _plasma => (
     default => sub { [] },
 );
 
+has _plasma_frequency => (
+    is      => 'rw',
+    isa     => 'Num',
+    default => 10,
+);
+
+has _plasma_time => (
+    is      => 'rw',
+    isa     => 'Num',
+    default => 0,
+);
+
 sub _build_app {
     return SDLx::App->new(
         title => 'Electric Lines',
@@ -161,6 +173,11 @@ sub _store_active_line {
 
 sub handle_move {
     my ( $self, $step, $app, $t ) = @_;
+
+    if ( $t > $self->_plasma_time + $self->_plasma_frequency ) {
+        $self->_plasma_time($t);
+        $self->_add_plasma();
+    }
 
     foreach my $plasma ( @{ $self->_plasma } ) {
         $self->_move_plasma( $plasma, $step );
