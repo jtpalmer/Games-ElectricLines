@@ -67,6 +67,12 @@ has _plasma_time => (
     default => 0,
 );
 
+has _row_count => (
+    is      => 'ro',
+    isa     => 'Int',
+    default => 4,
+);
+
 sub _build_app {
     return SDLx::App->new(
         title => 'Electric Lines',
@@ -102,8 +108,7 @@ sub _ending_points {
 sub _build_horizontal_lines {
     my ($self) = @_;
 
-    my $count = 4;
-
+    my $count = $self->_row_count;
     my $app   = $self->_app;
     my $space = $app->h / $count;
 
