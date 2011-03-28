@@ -73,6 +73,18 @@ has _row_count => (
     default => 4,
 );
 
+has _exit_count => (
+    is      => 'ro',
+    isa     => 'Int',
+    default => 2,
+);
+
+has _exits => (
+    is      => 'ro',
+    isa     => 'ArrayRef',
+    builder => '_build_exits',
+);
+
 sub _build_app {
     return SDLx::App->new(
         title => 'Electric Lines',
@@ -122,6 +134,19 @@ sub _build_horizontal_lines {
     }
 
     return \@lines;
+}
+
+sub _build_exits {
+    my ($self) = @_;
+
+    my @exits;
+    my @ends = @{ $self->_ending_points };
+    foreach my $i ( 1 .. $self->_exit_count ) {
+        my $n = int rand @ends;
+        push @exits, splice( @ends, $n, 1 );
+    }
+
+    return \@exits;
 }
 
 sub BUILD {
@@ -195,12 +220,14 @@ sub handle_show {
     }
 
     my $radius = $self->_sprite->rect->w / 2;
-    foreach my $start ( @{ $self->_starting_points } ) {
-        $app->draw_circle_filled( $start, $radius, 0xFFFFFFFF );
+    foreach my $point ( @{ $self->_starting_points } ) {
+        $app->draw_circle_filled( $point, $radius, 0xFFFFFFFF );
     }
-
-    foreach my $start ( @{ $self->_ending_points } ) {
-        $app->draw_circle_filled( $start, $radius, 0xFFFFFFFF );
+    foreach my $point ( @{ $self->_ending_points } ) {
+        $app->draw_circle_filled( $point, $radius, 0xFF0000FF );
+    }
+    foreach my $exit ( @{ $self->_exits } ) {
+        $app->draw_circle_filled( $exit, $radius, 0x00FF00FF );
     }
 
     if ( $self->_has_active_line() ) {
