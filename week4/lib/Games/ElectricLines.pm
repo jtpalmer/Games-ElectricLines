@@ -185,18 +185,27 @@ sub handle_show {
     my ( $self, $delta, $app ) = @_;
 
     $app->draw_rect( undef, undef );
+
     foreach my $line ( @{ $self->_horizontal_lines },
         @{ $self->_crossing_lines } )
     {
         $app->draw_line( @$line, 0xFFFFFFFF );
     }
+
+    my $radius = $self->_sprite->rect->w / 2;
+    foreach my $start ( @{ $self->_starting_points } ) {
+        $app->draw_circle_filled( $start, $radius, 0xFFFFFFFF );
+    }
+
     if ( $self->_has_active_line() ) {
         $self->_draw_active_line( $self->_active_line );
     }
+
     $self->_sprite->ticks_per_frame( 2 * @{ $self->_plasma } );
     foreach my $plasma ( @{ $self->_plasma } ) {
         $self->_draw_plasma($plasma);
     }
+
     $app->update();
 }
 
