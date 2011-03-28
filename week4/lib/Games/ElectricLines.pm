@@ -7,6 +7,7 @@ use SDL::Event;
 use SDL::Events;
 use SDL::Rect;
 use SDLx::App;
+use SDLx::Text;
 use SDLx::Sprite::Animated;
 
 has _share_dir => (
@@ -79,10 +80,30 @@ has _exit_count => (
     default => 2,
 );
 
+has _label => (
+    is      => 'ro',
+    isa     => 'SDLx::Text',
+    default => sub {
+        SDLx::Text->new( x => 5, y => 5, size => 24, color => 0xFFFFFF );
+    },
+);
+
 has _exits => (
     is      => 'ro',
     isa     => 'ArrayRef',
     builder => '_build_exits',
+);
+
+has _score => (
+    is      => 'rw',
+    isa     => 'Int',
+    default => 0,
+);
+
+has _lives => (
+    is      => 'rw',
+    isa     => 'Int',
+    default => 3,
 );
 
 sub _build_app {
@@ -238,6 +259,9 @@ sub handle_show {
     foreach my $plasma ( @{ $self->_plasma } ) {
         $self->_draw_plasma($plasma);
     }
+
+    $self->_label->write_to( $app,
+        'Lives: ' . $self->_lives . ' -- Score: ' . $self->_score );
 
     $app->update();
 }
