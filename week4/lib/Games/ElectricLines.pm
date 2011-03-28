@@ -275,23 +275,35 @@ sub _segment_line {
     }
     else {
         my @rows = grep {
-                   ( $y0 <=> $_->[1] ) == $direction
-                && ( $y1 <=> $_->[1] )
+                   ( $y0 <=> $_->[0][1] ) == $direction
+                && ( $y1 <=> $_->[0][1] )
                 != $direction
-        } @{ $self->_starting_points };
+        } @{ $self->_horizontal_lines };
         @rows = reverse @rows if $direction == 1;
 
         if ( @rows < 2 ) {
             push @bad, $line;
         }
         else {
-            my @segment = (
-                [ $self->_interpolate_x( $line, $rows[0][1] ), $rows[0][1] ],
-                [ $self->_interpolate_x( $line, $rows[1][1] ), $rows[1][1] ]
-            );
-            push @good, \@segment;
-            push @bad, [ $line->[0], $segment[0] ],
-                [ $segment[1], $line->[1] ];
+            my ( $row0, $row1 ) = @rows[ 0, 1 ];
+            my ( $r0_y,  $r1_y )  = ( $row0->[0][1], $row1->[0][1] );
+            my ( $r0_x0, $r0_x1 ) = ( $row0->[0][0], $row0->[1][0] );
+            my ( $r1_x0, $r1_x1 ) = ( $row1->[0][0], $row1->[1][0] );
+            my $s_x0 = $self->_interpolate_x( $line, $r0_y );
+            my $s_x1 = $self->_interpolate_x( $line, $r1_y );
+            if (   $r0_x0 > $s_x0
+                || $s_x0 > $r0_x1
+                || $r1_x0 > $s_x1
+                || $s_x1 > $r1_x1 )
+            {
+                push @bad, $line;
+            }
+            else {
+                my @segment = ( [ $s_x0, $r0_y ], [ $s_x1, $r1_y ] );
+                push @good, \@segment;
+                push @bad, [ $line->[0], $segment[0] ],
+                    [ $segment[1], $line->[1] ];
+            }
         }
     }
 
