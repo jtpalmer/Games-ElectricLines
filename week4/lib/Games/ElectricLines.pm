@@ -29,13 +29,6 @@ has _sprite => (
     builder => '_build_sprite',
 );
 
-has _starting_points => (
-    is      => 'ro',
-    isa     => 'ArrayRef',
-    lazy    => 1,
-    builder => '_build_starting_points',
-);
-
 has _horizontal_lines => (
     is      => 'ro',
     isa     => 'ArrayRef',
@@ -96,10 +89,14 @@ sub _build_sprite {
     return $sprite;
 }
 
-sub _build_starting_points {
+sub _starting_points {
     my ($self) = @_;
-
     return [ map { $_->[0] } @{ $self->_horizontal_lines } ];
+}
+
+sub _ending_points {
+    my ($self) = @_;
+    return [ map { $_->[1] } @{ $self->_horizontal_lines } ];
 }
 
 sub _build_horizontal_lines {
@@ -194,6 +191,10 @@ sub handle_show {
 
     my $radius = $self->_sprite->rect->w / 2;
     foreach my $start ( @{ $self->_starting_points } ) {
+        $app->draw_circle_filled( $start, $radius, 0xFFFFFFFF );
+    }
+
+    foreach my $start ( @{ $self->_ending_points } ) {
         $app->draw_circle_filled( $start, $radius, 0xFFFFFFFF );
     }
 
