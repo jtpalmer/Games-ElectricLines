@@ -6,11 +6,11 @@ SYNOPSIS
         perl electriclines.pl
 
     Options:
-        --lines N   Use this many horizontal lines
-        --exits N   Use this many exits
+        --lines N   Number of horizontal lines
+        --exits N   Number of exits
 
 INSTRUCTIONS
-    Guide the balls of plamsa to the exits (green circles).  Create new
+    Guide the plasma balls to the exits (green circles).  Create new
     routes by drawing lines across the horizontal lines using your mouse.
 
 PREREQUISIES
