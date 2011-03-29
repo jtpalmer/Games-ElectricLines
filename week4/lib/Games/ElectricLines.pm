@@ -59,7 +59,7 @@ has _plasma => (
 has _plasma_frequency => (
     is      => 'rw',
     isa     => 'Num',
-    default => 10,
+    default => 5,
 );
 
 has _plasma_time => (
@@ -111,7 +111,7 @@ sub _build_app {
         title => 'Electric Lines',
         w     => 800,
         h     => 600,
-        delay => 30,
+        delay => 10,
         eoq   => 1,
     );
 }
@@ -273,7 +273,7 @@ sub handle_show {
         $self->_draw_active_line( $self->_active_line );
     }
 
-    $self->_sprite->ticks_per_frame( 2 * @{ $self->_plasma } );
+    $self->_sprite->ticks_per_frame( 4 * @{ $self->_plasma } );
     foreach my $plasma ( @{ $self->_plasma } ) {
         $self->_draw_plasma($plasma);
     }
@@ -287,7 +287,7 @@ sub handle_show {
 sub _move_plasma {
     my ( $self, $plasma, $step ) = @_;
 
-    $step *= 3;
+    $step *= 4;
 
     if ( defined $plasma->{crossing} ) {
         my ( $line, $direction )
