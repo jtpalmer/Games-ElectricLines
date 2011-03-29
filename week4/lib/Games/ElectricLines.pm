@@ -400,6 +400,7 @@ sub _segment_line {
 sub _interpolate_x {
     my ( $self, $line, $y ) = @_;
     my ( $x0, $y0, $x1, $y1 ) = map {@$_} @$line;
+    return $x0 if $x0 == $x1;
     my $m = ( $y1 - $y0 ) / ( $x1 - $x0 );
     my $b = $y0 - $x0 * $m;
     return ( $y - $b ) / $m;
