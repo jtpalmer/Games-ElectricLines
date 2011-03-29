@@ -19,6 +19,7 @@ has _share_dir => (
 has _app => (
     is      => 'ro',
     isa     => 'SDLx::App',
+    lazy    => 1,
     builder => '_build_app',
     handles => [qw( run )],
 );
@@ -91,6 +92,7 @@ has _label => (
 has _exits => (
     is      => 'ro',
     isa     => 'ArrayRef',
+    lazy    => 1,
     builder => '_build_exits',
 );
 
