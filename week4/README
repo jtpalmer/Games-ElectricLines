@@ -1,6 +1,6 @@
 
 NAME
-    Games::ElectricLines - A Simple Game
+    Games::ElectricLines - A Simple Game inspired by "Mario's Slides"
 
 SYNOPSIS
         perl electriclines.pl
