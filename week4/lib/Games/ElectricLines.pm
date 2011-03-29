@@ -215,6 +215,8 @@ sub _store_active_line {
 sub handle_move {
     my ( $self, $step, $app, $t ) = @_;
 
+    return unless $self->_lives > 0;
+
     if ( $t > $self->_plasma_time + $self->_plasma_frequency ) {
         $self->_plasma_time($t);
         $self->_add_plasma();
@@ -223,10 +225,26 @@ sub handle_move {
     my @plasma;
     foreach my $plasma ( @{ $self->_plasma } ) {
         $self->_move_plasma( $plasma, $step );
-        push @plasma, $plasma
-            if $plasma->{x} < $app->w - $self->_sprite->rect->w / 2;
+        if ( $plasma->{x} < $app->w - $self->_sprite->rect->w / 2 ) {
+            push @plasma, $plasma;
+        }
+        else {
+            if ( grep { $plasma->{y} == $_->[1] } @{ $self->_exits } ) {
+                $self->_score( $self->_score + 1 );
+            }
+            else {
+                $self->_lives( $self->_lives - 1 );
+            }
+        }
     }
-    @{ $self->_plasma } = @plasma;
+
+    if ( $self->_lives <= 0 ) {
+        $self->_lives(0);
+        @{ $self->_plasma } = ();
+    }
+    else {
+        @{ $self->_plasma } = @plasma;
+    }
 }
 
 sub handle_show {
