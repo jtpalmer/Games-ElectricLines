@@ -77,7 +77,7 @@ has _row_count => (
 has _exit_count => (
     is      => 'ro',
     isa     => 'Int',
-    default => 2,
+    default => 1,
 );
 
 has _label => (
