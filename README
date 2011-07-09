@@ -1,8 +1,18 @@
-SDL Perl Game Contest!
-======================
 
-This repository contains games I made for the SDL Perl Game Contest.
+NAME
+    Games::ElectricLines - A Simple Game inspired by "Mario's Slides"
 
-For more information about the contest see:
+SYNOPSIS
+        perl electriclines.pl
 
-    http://onionstand.blogspot.com/2011/02/sdl-perl-game-contest.html
+    Options:
+        --lines N   Number of horizontal lines
+        --exits N   Number of exits
+
+INSTRUCTIONS
+    Guide the plasma balls to the exits (green circles).  Create new
+    routes by drawing lines across the horizontal lines using your mouse.
+
+PREREQUISIES
+    * SDL
+    * Mouse
