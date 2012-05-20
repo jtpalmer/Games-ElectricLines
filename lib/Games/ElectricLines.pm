@@ -13,6 +13,8 @@ use SDLx::App;
 use SDLx::Text;
 use SDLx::Sprite::Animated;
 
+# ABSTRACT: A simple game inspired by "Mario's Slides"
+
 has _share_dir => (
     is      => 'ro',
     isa     => 'Str',
