@@ -1,6 +1,13 @@
 #!perl
 use strict;
 use warnings;
+
+BEGIN {
+    if ( $^O eq 'darwin' && $^X ne 'SDLPerl' ) {
+        exec 'SDLPerl', $0, @ARGV or die "Failed to exec SDLPerl: $!";
+    }
+}
+
 use Getopt::Long;
 use Games::ElectricLines;
 
