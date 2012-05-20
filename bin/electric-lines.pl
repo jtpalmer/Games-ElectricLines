@@ -1,10 +1,11 @@
-#!/usr/bin/env perl
+#!perl
 use strict;
 use warnings;
 use Getopt::Long;
-use FindBin qw( $Bin );
-use lib "$Bin/lib";
 use Games::ElectricLines;
+
+# PODNAME: electric-lines.pl
+# ABSTRACT: Play the game
 
 my $lines  = 4;
 my $exits  = 1;
@@ -22,3 +23,6 @@ Games::ElectricLines->new(
     _row_count  => $lines,
     _exit_count => $exits,
 )->run();
+
+exit;
+
