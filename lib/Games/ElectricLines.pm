@@ -5,7 +5,7 @@ use Mouse;
 use FindBin qw($Bin);
 use File::Spec;
 use File::ShareDir qw(dist_dir);
-use SDL;
+use SDL 2.500;
 use SDL::Event;
 use SDL::Events;
 use SDL::Rect;
