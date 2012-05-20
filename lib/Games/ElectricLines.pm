@@ -1,7 +1,10 @@
 package Games::ElectricLines;
+use strict;
+use warnings;
 use Mouse;
-use FindBin qw( $Bin );
+use FindBin qw($Bin);
 use File::Spec;
+use File::ShareDir qw(dist_dir);
 use SDL;
 use SDL::Event;
 use SDL::Events;
@@ -13,7 +16,7 @@ use SDLx::Sprite::Animated;
 has _share_dir => (
     is      => 'ro',
     isa     => 'Str',
-    default => sub { File::Spec->catdir( $Bin, 'share' ) },
+    builder => '_build_share_dir',
 );
 
 has _app => (
@@ -107,6 +110,16 @@ has _lives => (
     isa     => 'Int',
     default => 3,
 );
+
+sub _build_share_dir {
+    my $root = File::Spec->catdir( $Bin, '..' );
+    if ( -f File::Spec->catfile( $root, 'dist.ini' ) ) {
+        return File::Spec->catdir( $root, 'share' );
+    }
+    else {
+        return dist_dir('Games-ElectricLines');
+    }
+}
 
 sub _build_app {
     return SDLx::App->new(
@@ -437,3 +450,4 @@ sub _add_plasma {
 no Mouse;
 
 1;
+
